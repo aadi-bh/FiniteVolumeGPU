@@ -180,7 +180,7 @@ class Autotuner:
             sim = simulator(**arguments)
         except:
             #An exception raised - not possible to continue
-            logger.debug("Failed creating %s with arguments %s", simulator.__name__, str(arguments))
+            logger.debug("Failed creating %s with arguments %s", (simulator.__name__, str(arguments)))
             return np.nan
         
         #Create timer events
@@ -189,12 +189,12 @@ class Autotuner:
         
         #Warmup
         for i in range(warmup_timesteps):
-            sim.stepEuler(sim.dt)
+            sim.step(sim.dt)
             
         #Run simulation with timer        
         start.record(sim.stream)
         for i in range(timesteps):
-            sim.stepEuler(sim.dt)
+            sim.step(sim.dt)
         end.record(sim.stream)
         
         #Synchronize end event

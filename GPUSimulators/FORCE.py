@@ -59,6 +59,7 @@ class FORCE (Simulator.BaseSimulator):
                  nx, ny, 
                  dx, dy, 
                  g, 
+                 dt = None,
                  cfl_scale=0.9,
                  boundary_conditions=BoundaryCondition(), 
                  block_width=16, block_height=16):
@@ -67,6 +68,7 @@ class FORCE (Simulator.BaseSimulator):
         super().__init__(context, 
             nx, ny, 
             dx, dy, 
+            dt,
             boundary_conditions,
             cfl_scale,
             1,

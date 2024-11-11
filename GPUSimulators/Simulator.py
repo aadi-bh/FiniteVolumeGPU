@@ -112,6 +112,7 @@ class BaseSimulator(object):
                  context, 
                  nx, ny, 
                  dx, dy, 
+                 dt,
                  boundary_conditions,
                  cfl_scale,
                  num_substeps,
@@ -142,6 +143,7 @@ class BaseSimulator(object):
         self.ny = np.int32(ny)
         self.dx = np.float32(dx)
         self.dy = np.float32(dy)
+        self.dt = np.float32(dt)
         self.setBoundaryConditions(boundary_conditions)
         self.cfl_scale = cfl_scale
         self.num_substeps = num_substeps

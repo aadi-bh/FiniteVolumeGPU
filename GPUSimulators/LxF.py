@@ -54,7 +54,8 @@ class LxF (Simulator.BaseSimulator):
                  h0, hu0, hv0, 
                  nx, ny, 
                  dx, dy, 
-                 g, 
+                 g,
+                 dt = None,
                  cfl_scale=0.9,
                  boundary_conditions=BoundaryCondition(),
                  block_width=16, block_height=16):
@@ -63,6 +64,7 @@ class LxF (Simulator.BaseSimulator):
         super().__init__(context, 
             nx, ny, 
             dx, dy, 
+            dt,
             boundary_conditions,
             cfl_scale,
             1,
