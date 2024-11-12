@@ -217,6 +217,7 @@ class BaseSimulator(object):
                 except AssertionError as e:
                     e.args += ("Step={:d}, time={:f}".format(self.simSteps(), self.simTime()),)
                     raise
+            return self.t, self.nt
 
 
     def step(self, dt):
