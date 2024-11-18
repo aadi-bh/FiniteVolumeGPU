@@ -182,7 +182,10 @@ class BaseSimulator(object):
         """
 
         printer = Common.ProgressPrinter(t)
-        
+        start_event = pycuda.driver.Event()
+        end_event = pycuda.driver.Event()
+        start_event.record()
+
         t_start = self.simTime()
         t_end = t_start + t
         
@@ -217,7 +220,11 @@ class BaseSimulator(object):
                 except AssertionError as e:
                     e.args += ("Step={:d}, time={:f}".format(self.simSteps(), self.simTime()),)
                     raise
-        return self.t, self.nt
+
+        end_event.record()
+        end_event.synchronize()
+        elapsed_secs = end_event.time_since(start_event) * 1.0e-3
+        return self.t, self.nt, elapsed_secs
 
 
     def step(self, dt):
