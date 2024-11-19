@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import os
 import datetime
 import socket
+import seaborn as sns
+from operator import itemgetter
 
 #Set large figure sizes
 plt.rcParams['figure.figsize'] = [12, 8]
@@ -15,11 +17,13 @@ plt.rcParams['lines.markeredgewidth'] = 1.5
 
 def setBwStyles(ax):
     from cycler import cycler
-
-    ax.set_prop_cycle( cycler('marker', ['.', 'x', 4, '+', '*', '1', 5]) +
-                       cycler('linestyle', ['-.', '--', ':', '-.', '--', ':', '-.']) +
-                       #cycler('markersize', [5, 5, 5, 5, 5, 5]) +
-                       cycler('color', ['k', 'k', 'k', 'k', 'k', 'k', 'k']) )    
+    ax.set_prop_cycle( cycler('marker', ['.', 'x', 4, '+', '*', '1', 5])
+                       + cycler('linestyle', ['-.', '--', ':', '-.', '--', ':', '-.'])
+                       # + cycler('markersize', [5]*7)
+                       # + cycler('color', ['k']*7)
+                       # + cycler('color', itemgetter(0, 1, 2, -1, -2, -3, -4)(plt.cm.tab20c.colors))
+                       + cycler('color', sns.color_palette("Paired", 7).as_hex())
+                       )    
 
 def save_figure(fig, stem):
     if (not os.path.isdir("figures")):
