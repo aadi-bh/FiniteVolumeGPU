@@ -73,6 +73,19 @@ def downsample(highres_solution, x_factor, y_factor=None):
     return highres_solution.reshape([int(ny), int(y_factor), int(nx), int(x_factor)]).mean(3).mean(1)
 
 
+def upscale(lowres_solution, x_factor, y_factor=None):
+    if (y_factor == None):
+        y_factor = x_factor
+
+    assert int(x_factor) == x_factor
+    x_factor = int(x_factor)
+    assert int(y_factor) == y_factor
+    y_factor = int(y_factor)
+
+    if (len(lowres_solution.shape) == 1):
+        lowres_solution = lowres_solution.reshape((1, lowres_solution.size))
+
+    return np.kron(lowres_solution, np.ones((y_factor, x_factor)))
 
 
     
