@@ -175,7 +175,7 @@ class BaseSimulator(object):
         return "{:s} [{:d}x{:d}]".format(self.__class__.__name__, self.nx, self.ny)
 
 
-    def simulate(self, t, max_nt = np.inf, dt=None):
+    def simulate(self, t, nt = np.inf, dt=None):
         """ 
         Function which simulates t_end seconds using the step function
         Requires that the step() function is implemented in the subclasses
@@ -189,12 +189,15 @@ class BaseSimulator(object):
         t_start = self.simTime()
         t_end = t_start + t
         
+        nt_start = self.simSteps()
+        nt_end = nt_start + nt
+
         update_dt = True
         if (dt is not None):
             update_dt = False
             self.dt = dt
         
-        while(self.simTime() < t_end and self.simSteps() < max_nt):
+        while(self.simTime() < t_end and self.simSteps() < nt_end):
             # Update dt every 100 timesteps and cross your fingers it works
             # for the next 100
             if (update_dt and (self.simSteps() % 100 == 0)):
