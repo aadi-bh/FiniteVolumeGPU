@@ -181,7 +181,14 @@ class BaseSimulator(object):
         Requires that the step() function is implemented in the subclasses
         """
 
-        printer = Common.ProgressPrinter(t)
+        if not min(t, nt) < np.inf:
+            raise ValueError("t, nt cannot both be infinity")
+        if t < np.inf:
+            progressmode = "TIME"
+            printer = Common.ProgressPrinter(t)
+        elif nt < np.inf:
+            progressmode = "STEPS"
+            printer = Common.ProgressPrinter(nt)
         start_event = pycuda.driver.Event()
         end_event = pycuda.driver.Event()
         start_event.record()
@@ -213,9 +220,11 @@ class BaseSimulator(object):
         
             # Step forward in time
             self.step(current_dt)
-
             #Print info
-            print_string = printer.getPrintString(self.simTime() - t_start)
+            if progressmode == "TIME":
+                print_string = printer.getPrintString(self.simTime() - t_start)
+            elif progressmode == "STEPS":
+                print_string = printer.getPrintString(self.simSteps() - nt_start)
             if (print_string):
                 self.logger.info("%s: %s", self, print_string)
                 try:
