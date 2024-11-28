@@ -18,8 +18,8 @@ plt.rcParams['lines.markeredgewidth'] = 1.5
 #plt.rcParams['savefig.dpi'] = 400
 
 
-def gen_filename(simulator, nx):
-    return os.path.abspath(os.path.join("data", "smooth1d", str(simulator.__name__) + "_" + str(nx) + ".npz"))
+def gen_filename(simulator, nx, ic="smooth1d"):
+    return os.path.abspath(os.path.join("data", ic, str(simulator.__name__) + "_" + str(nx) + ".npz"))
 
 def setBwStyles(ax):
     from cycler import cycler
@@ -31,11 +31,11 @@ def setBwStyles(ax):
                        + cycler('color', sns.color_palette("Paired", 7).as_hex())
                        )    
 
-def save_figure(fig, stem):
+def save_figure(fig, stem, ic="smooth1d"):
     if (not os.path.isdir("figures")):
         os.mkdir("figures")
     
-    fig_filename = os.path.join("figures", "convergence_smooth1d_" + stem + ".pdf")
+    fig_filename = os.path.join("figures", "convergence_" + ic + "_" + stem + ".pdf")
     
     metadata = {
         'CreationDate': datetime.datetime.now(), #time.strftime("%Y_%m_%d-%H_%M_%S"),
@@ -53,14 +53,14 @@ def save_figure(fig, stem):
                 transparent=True, pad_inches=0.0, facecolor=None, 
                 metadata=metadata)
 
-def plot_solution(simulator, nx, label, **kwargs):
-    datafilename = gen_filename(simulator, nx)
+def plot_solution(simulator, nx, label, ic="smooth1d", **kwargs):
+    datafilename = gen_filename(simulator, nx, ic)
     
     #Read the solution
     with np.load(datafilename) as data:
         h = data['h']
         
-    x = np.linspace(0.5, nx-0.5, nx)*100.0/float(nx)
+    x = np.linspace(0.5, nx-0.5, nx)* 100/float(nx)
     y = h[0,:]
     
     plt.plot(x, y, label=label, **kwargs)
