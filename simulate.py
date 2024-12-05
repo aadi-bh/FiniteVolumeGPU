@@ -3,20 +3,12 @@
 # imports
 #Import packages we need
 import numpy as np
-from matplotlib import animation, rc
-from matplotlib import pyplot as plt
-from matplotlib import gridspec
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-#import mpld3
-
-import subprocess
-import socket
 import sys
-import time
 import os
 import gc
-import datetime
 import logging
+import argparse
+import atexit
 
 import pycuda.driver as cuda
 
@@ -27,11 +19,7 @@ except ImportError:
 
 from GPUSimulators import Common, LxF, FORCE, HLL, HLL2, KP07, KP07_dimsplit, WAF
 from GPUSimulators import CudaContext
-import atexit
 from GPUSimulators.helpers import InitialConditions
-
-import argparse
-
 
 def init_logger(name, outfile, print_level=1, file_level=10):
     logger = logging.getLogger(name)
@@ -247,6 +235,4 @@ if __name__ == "__main__":
                           tf = args.tf, max_nt = args.nt)
     logger.info(f"[{args.simulator.__name__} {args.nx}x{args.ny}] done in {secs}s ({nt} steps).")
     gc.collect()
-    # write arguments and results
-    # what format are the results going to be in?
-    # npz is fine for those, but then there needs to be metadata about max_nt, etc.
+    sys.exit(0)
