@@ -72,9 +72,8 @@ def create_cuda_context(name, blocking=False, no_cache=False, use_autotuning=Tru
     atexit.register(exitfunc)
     return context
     
-def gen_filename(simulator, nx, ny):
-    ic = 'smooth1d'
-    return os.path.abspath(os.path.join("data", ic, str(simulator.__name__) + "_" + str(nx) + "_" + str(ny) + ".npz"))
+def gen_filename(args, nx, ny):
+    return os.path.abspath(os.path.join("data", str(args.ic.__name__), str(args.simulator.__name__) + "_" + str(nx) + "_" + str(ny) + ".npz"))
 
 
 def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx, ny, reference_ny,
@@ -89,10 +88,11 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
             'ny': ny,
             'ref_nx': reference_nx,
             'ref_ny': reference_ny,
+            'num_ghost_cells': GetSimulator.num_ghost_cells[simulator.__name__]
         }
         # This will change according to the init
         test_data_args.update(GetInitialCondition.ics[ic.__name__]['test_data_args'])
-        h0, hu0, hv0, dx, dy = ic(**test_data_args)
+        h0, hu0, hv0, dx, dy, = ic(**test_data_args)
 
         # Initialise simulator
         with Common.Timer(simulator.__name__ + "_" + str(nx)) as timer:
@@ -127,7 +127,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                 dirname = os.path.dirname(datafilename)
                 if (dirname and not os.path.isdir(dirname)):
                     os.makedirs(dirname)
-                np.savez_compressed(datafilename, h=h, hu=hu, hv=hv, t=t, nt=nt, elapsed_time=elapsed_time)
+                np.savez_compressed(datafilename, h=h, hu=hu, hv=hv, t=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args)
     gc.collect() # Force garbage collection
     return [t, nt, elapsed_time]
 
@@ -142,6 +142,13 @@ class GetSimulator(argparse.Action):
                   }
     def __call__(self, _, namespace, values, option_string=None):
         setattr(namespace, self.dest, self.simulators[values])
+    num_ghost_cells = {'LxF': 1,
+                       'FORCE': 1,
+                       'HLL': 1,
+                       'HLL2': 2,
+                       'KP07': 2,
+                       'KP07_dimsplit': 2,
+                       'WAF': 2}
 
 class GetInitialCondition(argparse.Action):
     ics = {'bump': {'fn': InitialConditions.bump,
@@ -152,11 +159,19 @@ class GetInitialCondition(argparse.Action):
                         'height': 100
                     }
                     },
-          'shock': {'fn': InitialConditions.dambreak,
-#                    'tf': 6.0,
-                    'max_nt': 100 # for now
+          'dambreak': {'fn': InitialConditions.dambreak,
+                    'test_data_args': {
+                        'width': 100,
+                        'height': 100,
+                        'damloc' : 0.5,
+                    }
                   },
-                  'constant': InitialConditions.constant
+                  'constant': {'fn': InitialConditions.constant,
+                               'test_data_args': {
+                                   'width': 10,
+                                   'height': 10,
+                                   'constant': 1.0}
+                  }
         }
     def __call__(self, _, namespace, values, option_string=None):
         data = self.ics[values]
@@ -165,8 +180,8 @@ class GetInitialCondition(argparse.Action):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Benchmark a simulator")
-    parser.add_argument("simulator", choices=GetSimulator.simulators.keys(), action=GetSimulator)
     parser.add_argument('ic', choices=GetInitialCondition.ics.keys(), action=GetInitialCondition)
+    parser.add_argument("simulator", choices=GetSimulator.simulators.keys(), action=GetSimulator)
     parser.add_argument('--cfl', type=float, default=0.9, required=False)
     parser.add_argument('--nx', type=int, default=128)
     parser.add_argument('--ref-nx', type=int, default=8192)
@@ -218,13 +233,13 @@ if __name__ == "__main__":
         # warmup!
     _, _, secs = run_benchmark(datafilename = None,
                                **benchmark_args,
-                               nx=16, reference_nx=16,
-                               ny=16, reference_ny=16,
+                               nx=min(16, args.nx), reference_nx=min(16, args.ref_nx),
+                               ny=min(16, args.ny), reference_ny=min(16, args.ref_ny),
                                max_nt = 1, tf=np.inf)
     logger.info(f"{args.simulator.__name__} completed warmup simulation in {secs}s.")
 
         # Run on all the sizes
-    datafilename = gen_filename(args.simulator, args.nx, args.ny)
+    datafilename = gen_filename(args, args.nx, args.ny)
     t, nt, secs = run_benchmark(datafilename = datafilename, 
                           **benchmark_args,
                           nx = args.nx, reference_nx = args.ref_nx,
