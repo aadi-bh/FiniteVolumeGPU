@@ -143,7 +143,34 @@ def bump(nx, ny, width, height,
     dy = height/ny
     
     return h, hu, hv, dx, dy
+def wall_boundary_conditions(data, num_ghost_cells):
+    data[0:num_ghost_cells,:] = data[2*num_ghost_cells-1:num_ghost_cells-1:-1,:]
+    data[-num_ghost_cells:,:] = data[-num_ghost_cells-1:-2*num_ghost_cells-1:-1,:]
+    data[:,0:num_ghost_cells] = data[:,2*num_ghost_cells-1:num_ghost_cells-1:-1]
+    data[:,-num_ghost_cells:] = data[:,-num_ghost_cells-1:-2*num_ghost_cells-1:-1]
+    return data
 
+def dambreak(nx, ny, width, height, ref_nx, ref_ny, damloc=0.5, num_ghost_cells=np.nan):
+    if (ref_nx == None):
+        ref_nx = nx
+    assert(ref_nx >= nx)
+    assert(ref_ny >= ny)
+    assert(0.0 < damloc and damloc < width)
+
+    ref_dx = width / float(ref_nx)
+    ref_dy = width / float(ref_ny)
+
+    x = ref_dx * (np.arange(0, ref_nx, dtype=np.float32) + 0.5)
+    y = ref_dy * (np.arange(0, ref_ny, dtype=np.float32) + 0.5)
+    xv, yv = np.meshgrid(x, y, sparse=False, indexing='xy')
+
+    h_highres = np.where(xv < damloc, 0.004, 0.001);
+    h = np.zeros((ny + 2 * num_ghost_cells, nx * 2 * num_ghost_cells), dtype=np.float32)
+    h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny)
+    h = wall_boundary_conditions(h, num_ghost_cells);
+
+def constant(nx, ny, width, height, ref_nx, ref_ny, constant=1.0, num_ghost_cells=2):
+    return constant * np.ones((nx + 2*num_ghost_cells, ny + 2 * num_ghost_cells))
 
 def genShockBubble(nx, ny, gamma, grid=None):
     """
