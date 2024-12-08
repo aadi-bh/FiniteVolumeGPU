@@ -74,7 +74,8 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                 dirname = os.path.dirname(datafilename)
                 if (dirname and not os.path.isdir(dirname)):
                     os.makedirs(dirname)
-                np.savez_compressed(datafilename, dx=dx, dy=dy, h=h, hu=hu, hv=hv, t=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args, cfl=sim_args['cfl_scale'])
+                np.savez_compressed(datafilename, dx=dx, dy=dy, h=h, hu=hu, hv=hv, tf=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args, cfl=sim_args['cfl_scale'])
+                print(f"Save simulation data to {datafilename}")
     gc.collect() # Force garbage collection
     return [t, nt, elapsed_time]
 

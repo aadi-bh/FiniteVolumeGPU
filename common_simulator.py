@@ -11,7 +11,7 @@ from GPUSimulators import CudaContext
 from GPUSimulators.helpers import InitialConditions
 
 
-def gen_filename(args, nx, ny, prefix=None):
+def gen_filename(args, nx, ny, ic:str=None, simulator=None, prefix=None):
     if prefix == None:
         if args.nt == np.inf and args.tf < np.inf:
             prefix = 'space'
@@ -19,8 +19,14 @@ def gen_filename(args, nx, ny, prefix=None):
             prefix = 'time'
         else:
             raise ValueError("gen_filename unable deduce the purpose of simulation.\n One and only one of args.nt and args.tf must be finite.")
+    if args != None:
+        if args.ic != None and ic == None:
+            ic = args.ic.__name__
+        if args.simulator != None and simulator == None:
+            simulator = args.simulator.__name__
+
     directory = prefix + '_data'
-    return os.path.abspath(os.path.join(directory, str(args.ic.__name__), str(args.simulator.__name__) + "_" + str(nx) + "_" + str(ny) + ".npz"))
+    return os.path.abspath(os.path.join(directory, ic, simulator + "_" + str(nx) + "_" + str(ny) + ".npz"))
 
 def gen_results_filename(kind:str, simulator:str, ic:str):
     return os.path.join(kind + '_data', 'results', ic, simulator + '.npz')
