@@ -58,6 +58,9 @@ def downsample(highres_solution, x_factor, y_factor=None):
     if (y_factor == None):
         y_factor = x_factor
 
+    if (len(highres_solution.shape) == 1):
+        highres_solution = highres_solution.reshape((1, highres_solution.size))
+
     assert(highres_solution.shape[1] % x_factor == 0)
     assert(highres_solution.shape[0] % y_factor == 0)
     
@@ -90,10 +93,10 @@ def upscale(lowres_solution, x_factor, y_factor=None):
 
     
 def bump(nx, ny, width, height, 
-        bump_size=None, 
         ref_nx=None, ref_ny=None,
+        bump_size=None, 
         x_center=0.5, y_center=0.5,
-        h_ref=0.5, h_amp=0.1, u_ref=0.0, u_amp=0.1, v_ref=0.0, v_amp=0.1):
+        h_ref=0.5, h_amp=0.1, u_ref=0.0, u_amp=0.1, v_ref=0.0, v_amp=0.1, **kwargs):
     
     if (ref_nx == None):
         ref_nx = nx
@@ -141,8 +144,9 @@ def bump(nx, ny, width, height,
     
     dx = width/nx
     dy = height/ny
-    
+
     return h, hu, hv, dx, dy
+
 def wall_boundary_conditions(data, num_ghost_cells):
     data[0:num_ghost_cells,:] = data[2*num_ghost_cells-1:num_ghost_cells-1:-1,:]
     data[-num_ghost_cells:,:] = data[-num_ghost_cells-1:-2*num_ghost_cells-1:-1,:]
@@ -169,8 +173,18 @@ def dambreak(nx, ny, width, height, ref_nx, ref_ny, damloc=0.5, num_ghost_cells=
     h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny)
     h = wall_boundary_conditions(h, num_ghost_cells);
 
-def constant(nx, ny, width, height, ref_nx, ref_ny, constant=1.0, num_ghost_cells=2):
-    return constant * np.ones((nx + 2*num_ghost_cells, ny + 2 * num_ghost_cells))
+    return h, hu, hv, dx, dy
+    
+
+def constant(nx, ny, width, height, ref_nx, ref_ny, constant=1.0, num_ghost_cells=np.nan):
+    assert(num_ghost_cells >= 1)
+    h = constant * np.ones((ny + 2*num_ghost_cells, nx + 2 * num_ghost_cells), dtype=np.float32)
+    hu = np.zeros_like(h)
+    hv = np.zeros_like(h)
+    dx = width / nx
+    dy = width / ny
+    x = np.linspace()
+    return h, hu, hv, dx, dy
 
 def genShockBubble(nx, ny, gamma, grid=None):
     """

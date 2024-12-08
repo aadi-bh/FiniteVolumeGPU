@@ -74,7 +74,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                 dirname = os.path.dirname(datafilename)
                 if (dirname and not os.path.isdir(dirname)):
                     os.makedirs(dirname)
-                np.savez_compressed(datafilename, h=h, hu=hu, hv=hv, t=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args)
+                np.savez_compressed(datafilename, dx=dx, dy=dy, h=h, hu=hu, hv=hv, t=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args, cfl=sim_args['cfl_scale'])
     gc.collect() # Force garbage collection
     return [t, nt, elapsed_time]
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         'transpose': args.transpose,
         #dt=0.25*0.7*(width/ref_nx)/(u_ref+u_amp + np.sqrt(g*(h_ref+h_amp))),
     }
-    # Run reference with a low CFL-number. TODO IT DOES NOT!
+    
     # warmup!
     _, _, secs = run_benchmark(datafilename = None,
                                **benchmark_args,

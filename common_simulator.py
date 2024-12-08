@@ -22,6 +22,9 @@ def gen_filename(args, nx, ny, prefix=None):
     directory = prefix + '_data'
     return os.path.abspath(os.path.join(directory, str(args.ic.__name__), str(args.simulator.__name__) + "_" + str(nx) + "_" + str(ny) + ".npz"))
 
+def gen_results_filename(kind:str, simulator:str, ic:str):
+    return os.path.join(kind + '_data', 'results', ic, simulator + '.npz')
+
 def init_logger(name, outfile, print_level=20, file_level=10):
     logger = logging.getLogger(name)
     logger.setLevel(min(print_level, file_level))
