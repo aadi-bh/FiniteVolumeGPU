@@ -148,6 +148,9 @@ def bump(nx, ny, width, height,
     return h, hu, hv, dx, dy
 
 def wall_boundary_conditions(data, num_ghost_cells):
+    assert data.ndim == 2
+    s = data.shape
+    assert s[0] >= num_ghost_cells
     data[0:num_ghost_cells,:] = data[2*num_ghost_cells-1:num_ghost_cells-1:-1,:]
     data[-num_ghost_cells:,:] = data[-num_ghost_cells-1:-2*num_ghost_cells-1:-1,:]
     data[:,0:num_ghost_cells] = data[:,2*num_ghost_cells-1:num_ghost_cells-1:-1]

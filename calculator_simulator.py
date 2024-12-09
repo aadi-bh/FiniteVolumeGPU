@@ -81,10 +81,12 @@ def gen_space_results(filenames, ref_solution):
         assert nx * ny > 0
         
         assert ref_nx >= nx
-        ref_h_downsampled = InitialConditions.downsample(ref_h, x_factor=ref_nx / nx, y_factor=ref_ny / ny)
+#        target_ny = min(ref_ny, ny)
+        ref_h_downsampled = InitialConditions.downsample(ref_h, x_factor=ref_nx / nx, y_factor= ref_ny / ny) # int(ref_ny / target_ny))
+#        h_downsampled = InitialConditions.downsample(h, x_factor=1.0, y_factor= int(ny / target_ny))
 
-        sim_errors[j] = np.linalg.norm((ref_h_downsampled - h).flatten(), ord=1) * dx * dy
-        sim_cons[j] = (np.sum(ref_h) * ref_dx - np.sum(h) * dx)
+        sim_errors[j] = np.linalg.norm((ref_h_downsampled - h).flatten(), ord=1) * dx * dy # * (ny / target_ny)
+        sim_cons[j] = (np.sum(ref_h) * ref_dx* ref_dy - np.sum(h) * dx * dy)
 
     # check that the solutions are indeed comparable
     assert np.all(sim_tf == sim_tf[0])

@@ -28,10 +28,9 @@ ic = args.ic.__name__
 
 for i, simulator in enumerate(simulators):
     for j, (nx, ny) in enumerate(zip(domain_sizes_x, domain_sizes_y)):
-        num_ghost_cells = GetSimulator.num_ghost_cells[simulator]
-        if ny < num_ghost_cells:
-            ny = num_ghost_cells
-            ref_ny = max(ny, ref_ny)
+#        num_ghost_cells = GetSimulator.num_ghost_cells[simulator]
+#        ny = max(ny, num_ghost_cells)
+#        ref_ny = max(ny, resolutions[1][-1])
         simulate_args = [ic, simulator,
                          '--nx', str(nx),
                          '--ref-nx', str(ref_nx),

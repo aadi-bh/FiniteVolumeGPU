@@ -100,8 +100,8 @@ class GetInitialCondition(argparse.Action):
                     },
           'dambreak': {'fn': InitialConditions.dambreak,
                     'test_data_args': {
-                        'width': 10,
-                        'height': 10,
+                        'width': 10.0,
+                        'height': 1.0,
 #                        'damloc' : 5,
                     }
                   },

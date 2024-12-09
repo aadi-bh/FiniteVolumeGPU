@@ -134,6 +134,6 @@ if __name__ == "__main__":
                           nx = args.nx, reference_nx = args.ref_nx,
                           ny = args.ny, reference_ny = args.ref_ny,
                           tf = args.tf, max_nt = args.nt)
-    logger.info(f"[{args.simulator.__name__} {args.nx}x{args.ny}] done in {secs}s ({nt} steps).")
+    logger.info(f"[{args.simulator.__name__} {args.nx}x{args.ny}] done in {secs}s ({nt} steps, tf={t}).")
     gc.collect()
     sys.exit(0)
