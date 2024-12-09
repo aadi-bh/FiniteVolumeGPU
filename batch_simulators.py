@@ -12,7 +12,7 @@ group.add_argument('--tf', type=float, default=None)
 group.add_argument('--nt', type=int, default=None)
 args = parser.parse_args()
 
-simulators = ['LxF', 'FORCE', 'HLL', 'HLL2', 'KP07', 'KP07_dimsplit', 'WAF']
+simulators = ['LxF', 'HLL', 'HLL2', 'KP07', 'KP07_dimsplit', 'WAF', 'FORCE']
 resolutions = np.loadtxt(args.sizes_file).astype(int)
 ref_nx = resolutions[0][-1]
 ref_ny = resolutions[1][-1]

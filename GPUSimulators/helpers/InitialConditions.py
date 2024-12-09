@@ -61,8 +61,8 @@ def downsample(highres_solution, x_factor, y_factor=None):
     if (len(highres_solution.shape) == 1):
         highres_solution = highres_solution.reshape((1, highres_solution.size))
 
-    assert highres_solution.shape[1] % x_factor == 0
-    assert highres_solution.shape[0] % y_factor == 0 
+    assert highres_solution.shape[1] % x_factor == 0 ,f"{highres_solution.shape[1]} is not a multiple of {x_factor}"
+    assert highres_solution.shape[0] % y_factor == 0 ,f"{highres_solution.shape[0]} is not a multiple of {y_factor}"
     
     if (x_factor*y_factor == 1):
         return highres_solution
@@ -160,21 +160,26 @@ def dambreak(nx, ny, ref_nx, ref_ny, width=10, height=1, damloc=5, num_ghost_cel
         ref_nx = nx
     assert ref_nx >= nx
 
+    if (ref_ny == None):
+        ref_ny = ny
     assert ref_ny >= ny
-    assert ref_ny == num_ghost_cells
+#    assert ref_ny == num_ghost_cells
 
-    assert 0.0 < damloc and damloc < width
+    assert 0.0 < damloc and damloc < width, "dam should be within the domain"
 
     ref_dx = width / float(ref_nx)
+    ref_dy = height / float(ref_ny)
     dx = width / float(nx)
-    dy = 1.0
+    dy = height / float(ny)
+    x = np.linspace(0.5 * ref_dx, width - 0.5 * ref_dx, ref_nx)
+    y = np.linspace(0.5 * ref_dy, height - 0.5 * ref_dy, ref_ny)
+
+    xv, _ = np.meshgrid(x, y, sparse=False, indexing='xy')
 
     h = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
     hu = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
     hv = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
-
-    x = np.linspace(0.0, width, ref_nx)
-    h_highres = np.where(x < damloc, 0.005, 0.001)
+    h_highres = np.where(xv < damloc, 0.005, 0.001)
     h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny)
     h = wall_boundary_conditions(h, num_ghost_cells);
 

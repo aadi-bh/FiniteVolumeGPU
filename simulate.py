@@ -83,7 +83,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
             
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Benchmark a simulator")
+    parser = argparse.ArgumentParser(description="Benchmark a simulator", allow_abbrev=True)
     parser.add_argument('ic', choices=GetInitialCondition.ics.keys(), action=GetInitialCondition)
     parser.add_argument("simulator", choices=GetSimulator.simulators.keys(), action=GetSimulator)
     parser.add_argument('--cfl', type=float, default=0.9, required=False)
