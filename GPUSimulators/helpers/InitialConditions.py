@@ -166,14 +166,15 @@ def dambreak(nx, ny, ref_nx, ref_ny, width=10, height=1, damloc=5, num_ghost_cel
     if (ref_ny == None):
         ref_ny = ny
     assert ref_ny >= ny
+    assert ny >= num_ghost_cells
 #    assert ref_ny == num_ghost_cells
 
     assert 0.0 < damloc and damloc < width, "dam should be within the domain"
 
     ref_dx = width / float(ref_nx)
-    ref_dy = height / float(ref_ny)
+    ref_dy = height / float(ref_ny) 
     dx = width / float(nx)
-    dy = height / float(ny)
+    dy = height / float(ny) 
     x = np.linspace(0.5 * ref_dx, width - 0.5 * ref_dx, ref_nx)
     y = np.linspace(0.5 * ref_dy, height - 0.5 * ref_dy, ref_ny)
 
@@ -183,7 +184,7 @@ def dambreak(nx, ny, ref_nx, ref_ny, width=10, height=1, damloc=5, num_ghost_cel
     hu = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
     hv = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
     h_highres = np.where(xv < damloc, 0.005, 0.001)
-    h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny)
+    h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny if ny > 0 else (1.0 if ref_ny == ny else ref_ny))
     h = wall_boundary_conditions(h, num_ghost_cells);
 
     return h, hu, hv, dx, dy
@@ -196,7 +197,6 @@ def constant(nx, ny, width, height, ref_nx, ref_ny, constant=1.0, num_ghost_cell
     hv = np.zeros_like(h)
     dx = width / nx
     dy = width / ny
-    x = np.linspace()
     return h, hu, hv, dx, dy
 
 def genShockBubble(nx, ny, gamma, grid=None):

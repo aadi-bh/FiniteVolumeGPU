@@ -43,7 +43,7 @@ for i, simulator in enumerate(simulators):
         command = rootcommand.split(' ') + simulate_args
         print(command)
         if not args.dry_run:
-            completed_process = subprocess.run(command, stdout=subprocess.DEVNULL)
+            completed_process = subprocess.run(command)
             try:
                 completed_process.check_returncode()
             except Exception as e:

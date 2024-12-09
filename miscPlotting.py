@@ -31,11 +31,11 @@ def setBwStyles(ax):
                        + cycler('color', sns.color_palette("Paired", 7).as_hex())
                        )    
 
-def save_figure(fig, stem, ic="smooth1d"):
+def save_figure(fig, stem, ic):
     if (not os.path.isdir("figures")):
         os.mkdir("figures")
     
-    fig_filename = os.path.join("figures", "convergence_" + ic + "_" + stem + ".pdf")
+    fig_filename = os.path.join("figures", ic + "_" + stem + ".pdf")
     
     metadata = {
         'CreationDate': datetime.datetime.now(), #time.strftime("%Y_%m_%d-%H_%M_%S"),
