@@ -61,8 +61,8 @@ def downsample(highres_solution, x_factor, y_factor=None):
     if (len(highres_solution.shape) == 1):
         highres_solution = highres_solution.reshape((1, highres_solution.size))
 
-    assert(highres_solution.shape[1] % x_factor == 0)
-    assert(highres_solution.shape[0] % y_factor == 0)
+    assert highres_solution.shape[1] % x_factor == 0
+    assert highres_solution.shape[0] % y_factor == 0 
     
     if (x_factor*y_factor == 1):
         return highres_solution
@@ -100,11 +100,11 @@ def bump(nx, ny, width, height,
     
     if (ref_nx == None):
         ref_nx = nx
-    assert(ref_nx >= nx)
+    assert ref_nx >= nx
       
     if (ref_ny == None):
         ref_ny = ny
-    assert(ref_ny >= ny)
+    assert ref_ny >= ny
         
     if (bump_size == None):
         bump_size = width/5.0
@@ -154,22 +154,27 @@ def wall_boundary_conditions(data, num_ghost_cells):
     data[:,-num_ghost_cells:] = data[:,-num_ghost_cells-1:-2*num_ghost_cells-1:-1]
     return data
 
-def dambreak(nx, ny, width, height, ref_nx, ref_ny, damloc=0.5, num_ghost_cells=np.nan):
+def dambreak(nx, ny, ref_nx, ref_ny, width=10, height=1, damloc=5, num_ghost_cells=np.nan):
+    assert num_ghost_cells >= 1
     if (ref_nx == None):
         ref_nx = nx
-    assert(ref_nx >= nx)
-    assert(ref_ny >= ny)
-    assert(0.0 < damloc and damloc < width)
+    assert ref_nx >= nx
+
+    assert ref_ny >= ny
+    assert ref_ny == num_ghost_cells
+
+    assert 0.0 < damloc and damloc < width
 
     ref_dx = width / float(ref_nx)
-    ref_dy = width / float(ref_ny)
+    dx = width / float(nx)
+    dy = 1.0
 
-    x = ref_dx * (np.arange(0, ref_nx, dtype=np.float32) + 0.5)
-    y = ref_dy * (np.arange(0, ref_ny, dtype=np.float32) + 0.5)
-    xv, yv = np.meshgrid(x, y, sparse=False, indexing='xy')
+    h = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
+    hu = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
+    hv = np.zeros((ny + 2*num_ghost_cells, nx + 2*num_ghost_cells), dtype=np.float32)
 
-    h_highres = np.where(xv < damloc, 0.004, 0.001);
-    h = np.zeros((ny + 2 * num_ghost_cells, nx * 2 * num_ghost_cells), dtype=np.float32)
+    x = np.linspace(0.0, width, ref_nx)
+    h_highres = np.where(x < damloc, 0.005, 0.001)
     h[num_ghost_cells:-num_ghost_cells, num_ghost_cells:-num_ghost_cells] = downsample(h_highres, ref_nx / nx, ref_ny / ny)
     h = wall_boundary_conditions(h, num_ghost_cells);
 
@@ -177,7 +182,7 @@ def dambreak(nx, ny, width, height, ref_nx, ref_ny, damloc=0.5, num_ghost_cells=
     
 
 def constant(nx, ny, width, height, ref_nx, ref_ny, constant=1.0, num_ghost_cells=np.nan):
-    assert(num_ghost_cells >= 1)
+    assert num_ghost_cells >= 1
     h = constant * np.ones((ny + 2*num_ghost_cells, nx + 2 * num_ghost_cells), dtype=np.float32)
     hu = np.zeros_like(h)
     hv = np.zeros_like(h)

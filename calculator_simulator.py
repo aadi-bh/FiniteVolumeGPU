@@ -21,7 +21,7 @@ args = parser.parse_args()
 if args.sizes == None or len(args.sizes) == 0:
     directory = os.path.dirname(gen_filename(args, 0, 0, prefix=args.directory))
     unchecked_filenames = glob.glob(os.path.join(directory, args.simulator.__name__ + "_[0-9]*_[0-9]*.npz"))
-    assert(len(unchecked_filenames) > 0)
+    assert len(unchecked_filenames) > 0
     print(f"Found {len(unchecked_filenames)} files")
 else:
     unchecked_filenames = [gen_filename(args, size_str.split('_')[0], size_str.split('_')[1], prefix = args.directory) for size_str in args.sizes]
@@ -54,7 +54,7 @@ def gen_space_results(filenames, ref_solution):
     elif ref_h.ndim == 2:
         ref_ny = ref_h.shape[0]
         ref_nx = ref_h.shape[1]
-    assert(ref_ny * ref_nx > 0)
+    assert ref_ny * ref_nx > 0
 
     ds_x = np.zeros(len(filenames))
     ds_y = np.zeros_like(ds_x)
@@ -78,16 +78,16 @@ def gen_space_results(filenames, ref_solution):
         elif h.ndim == 2:
             ny = h.shape[0]
             nx = h.shape[1]
-        assert(nx * ny > 0)
+        assert nx * ny > 0
         
-        assert(ref_nx >= nx)
+        assert ref_nx >= nx
         ref_h_downsampled = InitialConditions.downsample(ref_h, x_factor=ref_nx / nx, y_factor=ref_ny / ny)
 
         sim_errors[j] = np.linalg.norm((ref_h_downsampled - h).flatten(), ord=1) * dx * dy
         sim_cons[j] = (np.sum(ref_h) * ref_dx - np.sum(h) * dx)
 
     # check that the solutions are indeed comparable
-    assert(np.all(sim_tf == sim_tf[0]))
+    assert np.all(sim_tf == sim_tf[0])
     save_results(ds_x = ds_x,
                  ds_y = ds_y,
                  sim_errors = sim_errors,
@@ -111,7 +111,7 @@ def gen_time_results(filenames):
             tf[j] = data['tf']
 
     
-    assert(np.all(max_nt == max_nt[0]))
+    assert np.all(max_nt == max_nt[0])
     secs_per_timestep = longsim_elapsed_time / max_nt
     megacells_per_sec = ds_x * ds_y * 10**-6 * max_nt / longsim_elapsed_time
     
