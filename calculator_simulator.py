@@ -115,6 +115,7 @@ def gen_time_results(filenames):
             tf[j] = data['tf']
 
     
+    # check that they are all comparable
     assert np.all(max_nt == max_nt[0])
     secs_per_timestep = longsim_elapsed_time / max_nt
     megacells = ds_x * ds_y * 10**-6
@@ -130,6 +131,7 @@ def gen_time_results(filenames):
                  secs_per_timestep = secs_per_timestep,
                  megacells_per_sec = megacells_per_sec,
                  peak_megacells_per_sec = peak_megacells_per_sec,
+                 longsim_elapsed_time=longsim_elapsed_time,
                  sim_tf = tf,
                  sim_nt = max_nt[0])
 
