@@ -5,7 +5,7 @@ channels:
 - conda-forge
 
 dependencies:
-- python=3.7
+- python=3.10
 - numpy
 - matplotlib
 - jupyter
@@ -18,6 +18,9 @@ dependencies:
 - pycuda
 - ipyparallel
 - line_profiler
+- pandas
+- nbstripout
+- seaborn
 
 # Install conda environment (one-time operation):
 # $ conda env create -f conda_environment.yml
