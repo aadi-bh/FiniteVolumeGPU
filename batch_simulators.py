@@ -10,6 +10,7 @@ parser.add_argument('--sizes-file', type=str, default='domain_sizes.csv')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--tf', type=float, default=None)
 group.add_argument('--nt', type=int, default=None)
+parser.add_argument('--force-rerun', default=False, action='store_true')
 args = parser.parse_args()
 
 simulators = ['LxF', 'HLL', 'HLL2', 'KP07', 'KP07_dimsplit', 'WAF', 'FORCE']
@@ -36,6 +37,8 @@ for i, simulator in enumerate(simulators):
                          '--ref-nx', str(ref_nx),
                          '--ny', str(ny),
                          '--ref-ny', str(ref_ny)]
+        if args.force_rerun:
+            simulate_args += ['--force-rerun']
         if tf != None:
             simulate_args += ['--tf', str(tf)]
         if nt != None:

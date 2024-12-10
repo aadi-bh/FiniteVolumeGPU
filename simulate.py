@@ -91,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument('--ref-nx', type=int, default=8192)
     parser.add_argument('--ny', type=int, default=2)
     parser.add_argument('--ref-ny', type=int, default=2)
-    parser.add_argument('--force-rerun', action='store_true', default=True, help="Rerun simulation even if corresponding datafile exists")
+    parser.add_argument('--force-rerun', action='store_true', default=False, help="Rerun simulation even if corresponding datafile exists")
     parser.add_argument('--transpose', action='store_true', default=False, help="run the transposed initial condition")
     parser.add_argument('--logfile', default='gpusimulator', help="Name of log file")
     group = parser.add_mutually_exclusive_group(required=True)
