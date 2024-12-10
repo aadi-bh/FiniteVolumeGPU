@@ -3,6 +3,7 @@ import numpy as np
 import os
 import glob
 from common_simulator import *
+import scipy
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
@@ -10,11 +11,12 @@ ch.setLevel(10)
 logger.addHandler(ch)
 
 parser = argparse.ArgumentParser("Calculates benchmarking results given benchmarking data")
-parser.add_argument('directory', choices=['space', 'time'], default=None)
+parser.add_argument('directory', choices=['space', 'time', 'both'], default=None)
 parser.add_argument('ic', choices=GetInitialCondition.ics.keys(), action=GetInitialCondition)
 parser.add_argument('simulator', choices=GetSimulator.simulators.keys(), action=GetSimulator)
 parser.add_argument('--ref', type=str, help="Reference solution for erorr calculation")
 parser.add_argument('--sizes', nargs='+', help="List of nx_ny")
+PEAK_PERFORMANCE_FROM_LAST = 3
 args = parser.parse_args()
 
 # Generate filenames
@@ -115,29 +117,28 @@ def gen_time_results(filenames):
     
     assert np.all(max_nt == max_nt[0])
     secs_per_timestep = longsim_elapsed_time / max_nt
-    megacells_per_sec = ds_x * ds_y * 10**-6 * max_nt / longsim_elapsed_time
+    megacells = ds_x * ds_y * 10**-6
+    megacells_per_sec = megacells * max_nt / longsim_elapsed_time
+    # Peak megacells will use the last two/three values
+    x = megacells[-PEAK_PERFORMANCE_FROM_LAST: ]
+    y = megacells_per_sec[-PEAK_PERFORMANCE_FROM_LAST: ]
+    res = scipy.stats.linregress(x, y)
+    peak_megacells_per_sec = np.mean(x) * res.slope + res.intercept
     
     save_results(ds_x = ds_x,
                  ds_y = ds_y,
                  secs_per_timestep = secs_per_timestep,
                  megacells_per_sec = megacells_per_sec,
+                 peak_megacells_per_sec = peak_megacells_per_sec,
                  sim_tf = tf,
                  sim_nt = max_nt[0])
-#    results_filename = gen_results_filename(args.directory, args.simulator.__name__, args.ic.__name__)
-#    if not os.path.isdir(os.path.dirname(results_filename)):
-#        os.makedirs(os.path.dirname(results_filename))
-#    np.savez_compressed(results_filename, ds_x=ds_x, ds_y=ds_y, 
-#                        secs_per_timestep=secs_per_timestep, 
-#                        megacells_per_sec=megacells_per_sec,
-#                        longsim_elapsed_time=longsim_elapsed_time)
-#    print(f"Created {results_filename}")
 
 # ============================================================
 
 ds_x = np.zeros(len(filenames))
 ds_y = np.zeros_like(ds_x)
 
-if (args.directory == 'time'):
+if (args.directory == 'time' or args.directory == 'both'):
     gen_time_results(filenames)
-elif (args.directory == 'space'):
+elif (args.directory == 'space' or args.directory == 'both'):
     gen_space_results(filenames, args.ref)
