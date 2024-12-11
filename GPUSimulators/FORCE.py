@@ -128,4 +128,4 @@ class FORCE (Simulator.BaseSimulator):
                 
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
-        return max_dt
+        return max_dt*0.5
