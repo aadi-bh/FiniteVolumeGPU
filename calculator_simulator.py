@@ -117,7 +117,6 @@ def gen_time_results(filenames):
     
     # check that they are all comparable
     assert np.all(max_nt == max_nt[0])
-    secs_per_timestep = longsim_elapsed_time / max_nt
     megacells = ds_x * ds_y * 10**-6
     megacells_per_sec = megacells * max_nt / longsim_elapsed_time
     # Peak megacells will use the last two/three values
@@ -128,7 +127,6 @@ def gen_time_results(filenames):
     
     save_results(ds_x = ds_x,
                  ds_y = ds_y,
-                 secs_per_timestep = secs_per_timestep,
                  megacells_per_sec = megacells_per_sec,
                  peak_megacells_per_sec = peak_megacells_per_sec,
                  longsim_elapsed_time=longsim_elapsed_time,
@@ -140,6 +138,8 @@ def gen_time_results(filenames):
 ds_x = np.zeros(len(filenames))
 ds_y = np.zeros_like(ds_x)
 
+if args.directory == 'both':
+    raise NotImplementedError("Sorry, it's too much work to change this script now. Please run it twice.")
 if (args.directory == 'time' or args.directory == 'both'):
     gen_time_results(filenames)
 elif (args.directory == 'space' or args.directory == 'both'):
