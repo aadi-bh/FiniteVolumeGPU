@@ -447,7 +447,7 @@ __device__ void evolveF(float Q[vars][h+2*gc_y][w+2*gc_x],
     for (int var=0; var < vars; ++var) {
         for (int j=threadIdx.y; j<h+2*gc_y; j+=h) {
             for (int i=threadIdx.x+gc_x; i<w+gc_x; i+=w) {
-                Q[var][j][i] = Q[var][j][i] + (F[var][j][i-1] - F[var][j][i]) * (dt_ / dx_);
+                Q[var][j][i] = Q[var][j][i] + (F[var][j][i-1] - F[var][j][i]) * dt_ / dx_;
             }
         }
     }
@@ -468,7 +468,7 @@ __device__ void evolveG(float Q[vars][h+2*gc_y][w+2*gc_x],
     for (int var=0; var < vars; ++var) {
         for (int j=threadIdx.y+gc_y; j<h+gc_y; j+=h) {
             for (int i=threadIdx.x; i<w+2*gc_x; i+=w) {
-                Q[var][j][i] = Q[var][j][i] + (G[var][j-1][i] - G[var][j][i]) * (dt_ / dy_);
+                Q[var][j][i] = Q[var][j][i] + (G[var][j-1][i] - G[var][j][i]) * dt_ / dy_;
             }
         }
     }
