@@ -2,6 +2,8 @@ import argparse
 import numpy as np
 import os
 import glob
+
+import scipy.integrate
 from common_simulator import *
 import scipy
 
@@ -87,7 +89,9 @@ def gen_space_results(filenames, ref_solution):
         ref_h_downsampled = InitialConditions.downsample(ref_h, x_factor=ref_nx / nx, y_factor= ref_ny / ny) # int(ref_ny / target_ny))
 #        h_downsampled = InitialConditions.downsample(h, x_factor=1.0, y_factor= int(ny / target_ny))
 
-        sim_errors[j] = np.linalg.norm((ref_h_downsampled - h).flatten(), ord=1) * dx * dy # * (ny / target_ny)
+        sim_errors[j] = np.linalg.norm((ref_h_downsampled - h).flatten(), ord=1) / (nx * ny) # * dx * dy # * (ny / target_ny)
+        # Simpson's rule
+#        sim_errors[j] = scipy.integrate.simpson(np.abs((ref_h_downsampled - h).flatten())) / (nx * ny) # * dx * dy # * (ny / target_ny)
         sim_cons[j] = (np.sum(ref_h) * ref_dx* ref_dy - np.sum(h) * dx * dy)
 
     # check that the solutions are indeed comparable
