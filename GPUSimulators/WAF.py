@@ -47,6 +47,8 @@ class WAF (Simulator.BaseSimulator):
     dt: Size of each timestep (90 s)
     g: Gravitational accelleration (9.81 m/s^2)
     """
+    # To keep track of XY and YX across timesteps
+    XY_or_YX = 0
     def __init__(self, 
                  context,
                  h0, hu0, hv0, 
@@ -65,7 +67,7 @@ class WAF (Simulator.BaseSimulator):
             dt,
             boundary_conditions,
             cfl_scale,
-            2,
+            1, # Number of substeps is only one -- XY pass for one dt, YX pass for another.
             block_width, block_height);
         self.g = np.float32(g) 
 
@@ -99,7 +101,9 @@ class WAF (Simulator.BaseSimulator):
         self.cfl_data.fill(dt, stream=self.stream)
     
     def substep(self, dt, step_number):
-        self.substepDimsplit(dt*0.5, step_number)
+        # toggle which pass to perform
+        self.substepDimsplit(dt, substep = self.XY_or_YX)
+        self.XY_or_YX = (self.XY_or_YX + 1) % 2
         
     def substepDimsplit(self, dt, substep):
         self.kernel.prepared_async_call(self.grid_size, self.block_size, self.stream, 

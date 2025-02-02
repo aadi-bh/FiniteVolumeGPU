@@ -50,6 +50,7 @@ class HLL2 (Simulator.BaseSimulator):
     dt: Size of each timestep (90 s)
     g: Gravitational accelleration (9.81 m/s^2)
     """
+    XY_or_YX = 0
     def __init__(self, 
                  context, 
                  h0, hu0, hv0, 
@@ -69,7 +70,7 @@ class HLL2 (Simulator.BaseSimulator):
             dt,
             boundary_conditions,
             cfl_scale,
-            2,
+            1, # only one substep. We keep track of XY_or_YX
             block_width, block_height);
         self.g = np.float32(g) 
         self.theta = np.float32(theta)
@@ -104,7 +105,9 @@ class HLL2 (Simulator.BaseSimulator):
         self.cfl_data.fill(dt, stream=self.stream)
         
     def substep(self, dt, step_number):
-        self.substepDimsplit(dt*0.5, step_number)
+        # No need for a half here
+        self.substepDimsplit(dt, substep = self.XY_or_YX)
+        self.XY_or_YX = (self.XY_or_YX + 1) % 2
                 
     def substepDimsplit(self, dt, substep):
         self.kernel.prepared_async_call(self.grid_size, self.block_size, self.stream, 
@@ -132,4 +135,5 @@ class HLL2 (Simulator.BaseSimulator):
         
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
-        return max_dt*0.5
+        # There is no need for a half here. HLL is stable up to CFL = 1
+        return max_dt

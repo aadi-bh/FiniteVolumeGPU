@@ -137,4 +137,5 @@ class KP07 (Simulator.BaseSimulator):
         
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
+        # For two-dimensional scheme, the CFL is actually a 1/4. So what to do?
         return max_dt*0.5**(self.order-1)
