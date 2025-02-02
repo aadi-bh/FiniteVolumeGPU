@@ -52,6 +52,7 @@ class KP07_dimsplit(Simulator.BaseSimulator):
     dt: Size of each timestep (90 s)
     g: Gravitational accelleration (9.81 m/s^2)
     """
+    XY_or_YX = 0
     def __init__(self, 
                  context, 
                  h0, hu0, hv0, 
@@ -71,7 +72,7 @@ class KP07_dimsplit(Simulator.BaseSimulator):
             dt,
             boundary_conditions,
             cfl_scale,
-            2, 
+            1, # only one, because we keep track of XY_or_YX
             block_width, block_height)
         self.gc_x = 2
         self.gc_y = 2
@@ -108,7 +109,9 @@ class KP07_dimsplit(Simulator.BaseSimulator):
         self.cfl_data.fill(dt, stream=self.stream)
     
     def substep(self, dt, step_number):
-        self.substepDimsplit(dt*0.5, step_number)
+        # No half here, we keep track of XY_or_YX
+        self.substepDimsplit(dt, substep=self.XY_or_YX)
+        self.XY_or_YX = (self.XY_or_YX + 1) % 2
     
     def substepDimsplit(self, dt, substep):
         self.kernel.prepared_async_call(self.grid_size, self.block_size, self.stream, 
@@ -136,4 +139,5 @@ class KP07_dimsplit(Simulator.BaseSimulator):
 
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
+        # This half stays, because the PP requires it
         return max_dt*0.5
