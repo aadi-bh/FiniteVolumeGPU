@@ -154,6 +154,7 @@ class BaseSimulator(object):
             block_width = int(peak_configuration["block_width"])
             block_height = int(peak_configuration["block_height"])
             self.logger.debug("Used autotuning to get block size [%d x %d]", block_width, block_height)
+            print(f"{self.__class__.__name__} [{nx}x{ny}] autotuning block size [{block_width} x {block_height}]")
         
         #Compute kernel launch parameters
         self.block_size = (block_width, block_height, 1) 
