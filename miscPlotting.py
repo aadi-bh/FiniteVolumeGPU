@@ -5,6 +5,7 @@ import datetime
 import socket
 import numpy as np
 import seaborn as sns
+import subprocess
 from operator import itemgetter
 import gc
 
@@ -74,3 +75,26 @@ def plot_comparison(nx, **kwargs):
 
     for i, simulator in enumerate(simulators):
         plot_solution(simulator, nx, simulator.__name__, **kwargs)
+
+def gen_reference(nx):
+    csv_filename = os.path.abspath(os.path.join("reference", "swashes_1_nx=" + str(nx) + ".csv"))
+
+    #If we do not have the data, generate it    
+    if (not os.path.isfile(csv_filename)):
+        print("Generating new reference!")
+        swashes_path = r'C:\Users\anbro\Documents\programs\SWASHES-1.03.00_win\bin\swashes_win.exe'
+
+        swashes_args = [\
+                        '1', # 1D problems \
+                        '3', # Dam breaks \
+                        '1', # Domain 1 \
+                        '1', # Wet domain no friction
+                        str(nx) #Number of cells X
+                       ]
+
+        with open(csv_filename, 'w') as csv_file:
+            p = subprocess.check_call([swashes_path] + swashes_args, stdout=csv_file)
+
+    reference = np.genfromtxt(csv_filename, comments='#', delimiter='\t', skip_header=0, usecols=(0, 1, 2))
+    x, h, u = reference[:, 0], reference[:, 1], reference[:, 2]
+    return x, h, h*u
