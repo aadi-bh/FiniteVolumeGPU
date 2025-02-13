@@ -1,12 +1,12 @@
 
 REFNX=16384
 REFNY=16384
-sizes:= 16 32 64 128 256 512 1024 2048 4096 8192 8
-sizes+=$(REFNX)
+sizes=8 16 32 64 128 256 512 1024 2048 4096 8192
 sizes_sizes=$(foreach size, $(sizes), $(size)_$(size))
+sizes+= $(REFNX)
 simulators=LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
 kind_data=space_data time_data
-ics=bump dambreak constant
+ics=constant bump
 
 # simulations are in kind_data/ics/simulators_sizes.npz
 simulation_targets = $(foreach kd, $(kind_data), \
@@ -26,6 +26,8 @@ result_targets = $(foreach kd, $(kind_data), \
 .PHONY: clean
 all: $(result_targets)
 $(simulation_targets): simulate.py
+$(result_targets): calculator_simulator.py
+
 clean:
 	@echo "No"
 
@@ -40,9 +42,7 @@ else ifeq ($(1),time_data)
 	ENDFLAG=--nt 1000
 endif
 
-$(info, $(1).$(2))
-
-$(1)/$(2)/$(3)_$(4)_$(4).npz: simulate.py
+$(1)/$(2)/$(3)_$(4)_$(4).npz:
 	python simulate.py $(2) $(3) --nx $(4) --ny $(4) \
 	--ref-nx $(REFNX) --ref-ny $(REFNY) \
 	$(ENDFLAG)
@@ -58,17 +58,12 @@ $(foreach kd, $(kind_data),	$(foreach ic, $(ics), $(foreach simulator, $(simulat
 #		--sizes $(SIZES)
 #
 define result_template =
-ifeq ($(1),space_data)
-	REFFLAG=--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz
-else
-	undefine REFFLAG
-endif
+REFFLAG=--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz
 
-deps = $(foreach size_size, $(sizes_sizes), $(1)/$(2)/$(3)_$(size_size).npz)
-
-$(1)/results/$(2)/$(3).npz: 
+$(1)/results/$(2)/$(3).npz:
 	python calculator_simulator.py $(subst _data,,$(1)) $(2) $(3) \
-		$(REFFLAG) \
-		--sizes $(sizes_sizes)
+		--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz \
+		 --sizes $(filter-out $(REFNX)_$(REFNY), $(sizes_sizes))
 endef
+
 $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulators), $(eval $(call result_template,$(kd),$(ic),$(simulator))))))
