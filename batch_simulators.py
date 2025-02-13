@@ -11,16 +11,15 @@ group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--tf', type=float, default=None)
 group.add_argument('--nt', type=int, default=None)
 parser.add_argument('--force-rerun', default=False, action='store_true')
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
-simulators = ['LxF', 'HLL', 'HLL2', 'KP07', 'KP07_dimsplit', 'WAF', 'FORCE']
+simulators = ['KP07_dimsplit', 'WAF', 'HLL2', 'KP07', 'HLL', 'LxF',  'FORCE']
 resolutions = np.loadtxt(args.sizes_file).astype(int)
 ref_nx = resolutions[0][-1]
 ref_ny = resolutions[1][-1]
 domain_sizes_x = resolutions[0]
 domain_sizes_y = resolutions[1]
 
-print(list(zip(domain_sizes_x, domain_sizes_y)))
 tf = args.tf
 nt = args.nt
 
@@ -44,7 +43,6 @@ for i, simulator in enumerate(simulators):
         if nt != None:
             simulate_args += ['--nt', str(nt)]
         command = rootcommand.split(' ') + simulate_args
-        print(command)
         if not args.dry_run:
             completed_process = subprocess.run(command)
             try:

@@ -95,7 +95,11 @@ def gen_space_results(filenames, ref_solution):
         sim_cons[j] = (np.sum(ref_h) * ref_dx* ref_dy - np.sum(h) * dx * dy)
 
     # check that the solutions are indeed comparable
-    assert np.all(sim_tf == sim_tf[0])
+    try:
+        assert np.all(sim_tf == sim_tf[0]) 
+    except Exception as e:
+        print(sim_tf)
+        raise e
     save_results(ds_x = ds_x,
                  ds_y = ds_y,
                  sim_errors = sim_errors,
