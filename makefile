@@ -1,12 +1,12 @@
 
-REFNX=16384
-REFNY=16384
-sizes=8 16 32 64 128 256 512 1024 2048 4096 8192
-sizes_sizes=$(foreach size, $(sizes), $(size)_$(size))
+REFNX := 16384
+REFNY := 16384
+sizes := 8 16 32 64 128 256 512 1024 2048 4096 8192
+sizes_sizes := $(foreach size, $(sizes), $(size)_$(size))
 sizes+= $(REFNX)
-simulators=LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
-kind_data=space_data time_data
-ics=constant bump
+simulators := LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
+kind_data := space_data time_data
+ics := constant dambreak bump
 
 # simulations are in kind_data/ics/simulators_sizes.npz
 simulation_targets = $(foreach kd, $(kind_data), \
@@ -23,33 +23,45 @@ result_targets = $(foreach kd, $(kind_data), \
 
 # Phony targets are those that do not refer to actual files, only other actions.
 # This way make runs the recipe for clean even if there happens to be a file called clean
-.PHONY: clean
+.PHONY: clean all
 all: $(result_targets)
-$(simulation_targets): simulate.py
-$(result_targets): calculator_simulator.py
-
 clean:
 	@echo "No"
 
+$(simulation_targets): simulate.py
+$(result_targets): calculator_simulator.py
+
+####################
+#
+# python simulate.py space dambreak --nx 8 --ny 8
+# 	--ref-nx 16384 --ref-ny 16384 --tf 6.0
+#
+#
+define empty_template = 
+endef
+
 define simulation_template =
+
+$(eval 
 ifeq ($(1).$(2),space_data.dambreak)
-	ENDFLAG=--tf 6.0
+ENDFLAG=--tf 6.0
 else ifeq ($(1).$(2),space_data.bump)
-	ENDFLAG=--tf 1.0
+ENDFLAG=--tf 1.0
 else ifeq ($(1).$(2),space_data.constant)
-	ENDFLAG=--tf 1.0
+ENDFLAG=--tf 1.0
 else ifeq ($(1),time_data)
-	ENDFLAG=--nt 1000
-endif
+ENDFLAG=--nt 1000
+endif)
 
 $(1)/$(2)/$(3)_$(4)_$(4).npz:
 	python simulate.py $(2) $(3) --nx $(4) --ny $(4) \
-	--ref-nx $(REFNX) --ref-ny $(REFNY) \
-	$(ENDFLAG)
+--ref-nx $(REFNX) --ref-ny $(REFNY) \
+$(ENDFLAG)
+
 endef
 
 # This creates the rule for each of our files!
-$(foreach kd, $(kind_data),	$(foreach ic, $(ics), $(foreach simulator, $(simulators), $(foreach size, $(sizes), $(eval $(call simulation_template,$(kd),$(ic),$(simulator),$(size)))))))
+$(foreach kd,$(kind_data),$(foreach ic,$(ics),$(foreach simulator,$(simulators),$(foreach size,$(sizes),$(eval $(call simulation_template,$(kd),$(ic),$(simulator),$(size)))))))
 
 #####################
 #
@@ -58,12 +70,18 @@ $(foreach kd, $(kind_data),	$(foreach ic, $(ics), $(foreach simulator, $(simulat
 #		--sizes $(SIZES)
 #
 define result_template =
+# The reference file for error calculation. Ignored during time calculations
 REFFLAG=--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz
+# The solution files that this result file depends upon
+# All the solution files, basically
 
-$(1)/results/$(2)/$(3).npz:
+$(1)/results/$(2)/$(3).npz: $(foreach size, $(sizes), $(1)/$(2)/$(3)_$(size)_$(size).npz)
 	python calculator_simulator.py $(subst _data,,$(1)) $(2) $(3) \
 		--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz \
-		 --sizes $(filter-out $(REFNX)_$(REFNY), $(sizes_sizes))
+		--sizes $(filter-out $(REFNX)_$(REFNY), $(sizes_sizes))
+
 endef
 
 $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulators), $(eval $(call result_template,$(kd),$(ic),$(simulator))))))
+
+.NOTPARALLEL: $(simulation_targets)
