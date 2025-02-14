@@ -75,7 +75,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                 if (dirname and not os.path.isdir(dirname)):
                     os.makedirs(dirname)
                 np.savez_compressed(datafilename, dx=dx, dy=dy, h=h, hu=hu, hv=hv, tf=t, nt=nt, elapsed_time=elapsed_time, test_data_args=test_data_args, cfl=sim_args['cfl_scale'])
-                print(f"Save simulation data to {datafilename}")
+                print(f"Saved simulation data to {datafilename}")
     gc.collect() # Force garbage collection
     return [t, nt, elapsed_time]
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     logger = init_logger(__name__, 'gpusimulator.log')
     logger = logging.getLogger(__name__)
 
-    logger.info("Arguments: " + str(args))
+    logger.info("Arguments to simulate.py: " + str(args))
 
     ctx = create_cuda_context('benchmark_context')
     sim_args = {
