@@ -1,12 +1,12 @@
 
-REFNX := 16384
-REFNY := 16384
-sizes := 8 16 32 64 128 256 512 1024 2048 4096 8192
+REFNX ?= 16384
+REFNY ?= 16384
+sizes ?= 8 16 32 64 128 256 512 1024 2048 4096 8192
+simulators ?= LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
+kind_data ?= space_data time_data
+ics ?= constant dambreak bump
 sizes_sizes := $(foreach size, $(sizes), $(size)_$(size))
 sizes+= $(REFNX)
-simulators := LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
-kind_data := space_data time_data
-ics := constant dambreak bump
 
 # simulations are in kind_data/ics/simulators_sizes.npz
 simulation_targets = $(foreach kd, $(kind_data), \
@@ -23,13 +23,22 @@ result_targets = $(foreach kd, $(kind_data), \
 
 # Phony targets are those that do not refer to actual files, only other actions.
 # This way make runs the recipe for clean even if there happens to be a file called clean
-.PHONY: clean all
-all: $(result_targets)
+.PHONY: clean all help
+all: plots_bump.ipynb plots_dambreak.ipynb
 clean:
 	@echo "No"
 
 $(simulation_targets): simulate.py
 $(result_targets): calculator_simulator.py
+help:
+	@echo "	Usage:"
+	@echo "		make [ics=ICS] [simulators=SIMULATORS] [sizes=SIZES] [kind_data=KIND_DATA]"
+	@echo
+	@echo "To run only 1 simulation and update the data, run the following:"
+	@echo "		make ic=constant simulator=WAF sizes=1024 kind_data=time_data"
+
+plots_%.ipynb: plotter_simulator.ipynb space_data/%/*.npz time_data/%/*.npz
+	papermill plotter_simulator.ipynb $@ -p ic $* 
 
 ####################
 #
