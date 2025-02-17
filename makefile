@@ -23,8 +23,9 @@ result_targets = $(foreach kd, $(kind_data), \
 
 # Phony targets are those that do not refer to actual files, only other actions.
 # This way make runs the recipe for clean even if there happens to be a file called clean
-.PHONY: clean all help
-all: plots_bump.ipynb plots_dambreak.ipynb
+.PHONY: clean plots help all
+all: plots
+plots: plots_bump.ipynb plots_dambreak.ipynb
 clean:
 	@echo "No"
 
@@ -37,14 +38,14 @@ help:
 	@echo "To run only 1 simulation and update the data, run the following:"
 	@echo "		make ic=constant simulator=WAF sizes=1024 kind_data=time_data"
 
-plots_%.ipynb: plotter_simulator.ipynb space_data/%/*.npz time_data/%/*.npz
+plots_%.ipynb: plotter_simulator.ipynb space_data/results/%/*.npz time_data/results/%/*.npz
 	papermill plotter_simulator.ipynb $@ -p ic $* 
 
 ####################
 #
 # python simulate.py space dambreak --nx 8 --ny 8
 # 	--ref-nx 16384 --ref-ny 16384 --tf 6.0
-#
+# USING --force-rerun because make's logic is better than the script's
 #
 define empty_template = 
 endef
@@ -60,12 +61,17 @@ else ifeq ($(1).$(2),space_data.constant)
 ENDFLAG=--tf 1.0
 else ifeq ($(1),time_data)
 ENDFLAG=--nt 1000
-endif)
+endif
+
+ifeq ($(3),LxF)
+# 	ENDFLAG+=--cfl 0.6
+endif
+)
 
 $(1)/$(2)/$(3)_$(4)_$(4).npz:
 	python simulate.py $(2) $(3) --nx $(4) --ny $(4) \
 --ref-nx $(REFNX) --ref-ny $(REFNY) \
-$(ENDFLAG)
+$(ENDFLAG) --force-rerun
 
 endef
 
