@@ -35,7 +35,8 @@ result_targets = $(foreach kd, $(kind_data), \
 .PHONY: clean plots help all
 
 # First target is the default target
-all: plots_bump.ipynb plots_dambreak.ipynb
+plots: plots_bump.ipynb plots_dambreak.ipynb
+all: plots
 
 help:
 	@echo "	Usage:"
@@ -44,16 +45,19 @@ help:
 	@echo "To run only 1 simulation and update the data, run the following:"
 	@echo "		make ic=constant simulator=WAF sizes=1024 kind_data=time_data"
 
-plots_%.ipynb: plotter_simulator.ipynb space_data/results/%/*.npz time_data/results/%/*.npz
+# To use the matched pattern (% or $*) in the prerequisites we need to use second expansion, so double dollar signs
+.SECONDEXPANSION:
+plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: plotter_simulator.ipynb $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
 	papermill plotter_simulator.ipynb $@ -p ic $* 
 
 # Shouldn't make it too easy to delete hours of work
+# Prepending with a minus tells make to ignore errors
 clean:
 	@echo "Delete simulation files manually. Only removing plots and calculations."
-	rm plots_bump.ipynb plots_dambreak.ipynb
-	rm space_data/results/* time_data/results/*
+	-rm plots_bump.ipynb plots_dambreak.ipynb
+	-rm space_data/results/* time_data/results/*
 
-# Declares a common dependency here. Individual rules later
+# Declares a common dependency here. Individual rules below
 $(simulation_targets): simulate.py
 $(result_targets): calculator_simulator.py
 
@@ -133,4 +137,5 @@ endef
 $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulators), $(eval $(call result_template,$(kd),$(ic),$(simulator))))))
 
 # Don't run `simulate.py` in parallel, because we are benchmarking performance
-.NOTPARALLEL: $(simulation_targets)
+# But it affects all the prerequisites as well
+# .NOTPARALLEL: $(simulation_targets)
