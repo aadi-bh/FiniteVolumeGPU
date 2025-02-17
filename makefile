@@ -1,20 +1,29 @@
+# 
+# Makefile for running simulations, calculations, and generating plots
+# Created 13th Feb 2025
 
+# ?= only sets if empty, so can be overriden command line to override
 REFNX ?= 16384
 REFNY ?= 16384
+# Even these can be changed on the cli
 sizes ?= 8 16 32 64 128 256 512 1024 2048 4096 8192
 simulators ?= LxF FORCE HLL HLL2 KP07 KP07_dimsplit WAF
 kind_data ?= space_data time_data
 ics ?= constant dambreak bump
+
+# puts the sizes list into "n_n" format
 sizes_sizes := $(foreach size, $(sizes), $(size)_$(size))
 sizes+= $(REFNX)
 
-# simulations are in kind_data/ics/simulators_sizes.npz
+# Product of the sets of space/time, ics, simulators, and sizes 
+# (with the right path name and extension: simulations are in kind_data/ics/simulators_sizes.npz)
 simulation_targets = $(foreach kd, $(kind_data), \
 					$(foreach ic, $(ics), \
 						$(foreach simulator, $(simulators), \
 							$(foreach size, $(sizes), \
 								$(kd)/$(ic)/$(simulator)_$(size)_$(size).npz))))
-#
+
+# Another product of sets to generate the calculation files
 # calculated values are in kind_data/results/ics/simulators.npz
 result_targets = $(foreach kd, $(kind_data), \
 				 $(foreach ic, $(ics), \
@@ -24,16 +33,13 @@ result_targets = $(foreach kd, $(kind_data), \
 # Phony targets are those that do not refer to actual files, only other actions.
 # This way make runs the recipe for clean even if there happens to be a file called clean
 .PHONY: clean plots help all
-all: plots
-plots: plots_bump.ipynb plots_dambreak.ipynb
-clean:
-	@echo "No"
 
-$(simulation_targets): simulate.py
-$(result_targets): calculator_simulator.py
+# First target is the default target
+all: plots_bump.ipynb plots_dambreak.ipynb
+
 help:
 	@echo "	Usage:"
-	@echo "		make [ics=ICS] [simulators=SIMULATORS] [sizes=SIZES] [kind_data=KIND_DATA]"
+	@echo "		make [plots | all | FILENAME] [ics=ICS] [simulators=SIMULATORS] [sizes=SIZES] [kind_data=KIND_DATA] [REFNX=REFNX] [REFNY=REFNY]"
 	@echo
 	@echo "To run only 1 simulation and update the data, run the following:"
 	@echo "		make ic=constant simulator=WAF sizes=1024 kind_data=time_data"
@@ -41,17 +47,33 @@ help:
 plots_%.ipynb: plotter_simulator.ipynb space_data/results/%/*.npz time_data/results/%/*.npz
 	papermill plotter_simulator.ipynb $@ -p ic $* 
 
-####################
-#
-# python simulate.py space dambreak --nx 8 --ny 8
+# Shouldn't make it too easy to delete hours of work
+clean:
+	@echo "Delete simulation files manually. Only removing plots and calculations."
+	rm plots_bump.ipynb plots_dambreak.ipynb
+	rm space_data/results/* time_data/results/*
+
+# Declares a common dependency here. Individual rules later
+$(simulation_targets): simulate.py
+$(result_targets): calculator_simulator.py
+
+#################### SIMULATION RECIPES ####################
+# Syntax reference:
+# > python simulate.py space dambreak --nx 8 --ny 8
 # 	--ref-nx 16384 --ref-ny 16384 --tf 6.0
 # USING --force-rerun because make's logic is better than the script's
 #
-define empty_template = 
-endef
 
+# This template is called for each simulation target
+# Order of arguments: 
+# 1: kind_data
+# 2: ic
+# 3: simulator
+# 4: size
 define simulation_template =
 
+# Eval ensures execution at this point. Fixes some phase issues
+# Set the end time or maxsteps depending on the type of simulation
 $(eval 
 ifeq ($(1).$(2),space_data.dambreak)
 ENDFLAG=--tf 6.0
@@ -74,29 +96,41 @@ $(1)/$(2)/$(3)_$(4)_$(4).npz:
 $(ENDFLAG) --force-rerun
 
 endef
+# EMPTY LINE IS NECESSARY BEFORE `endef`, because `eval` needs that to work properly
 
-# This creates the rule for each of our files!
+# Now call that template for every simulation target
+# and then run it through eval again
 $(foreach kd,$(kind_data),$(foreach ic,$(ics),$(foreach simulator,$(simulators),$(foreach size,$(sizes),$(eval $(call simulation_template,$(kd),$(ic),$(simulator),$(size)))))))
 
-#####################
-#
+#################### CALCULATION RECIPES ####################
+# Syntax reference:
 #	python calculator_simulator.py space dambreak HLL \
 #		--ref space_data/dambreak/HLL_16384_16384.npz \
 #		--sizes $(SIZES)
 #
+
+# This template is called for each simulation target
+# Order of arguments: 
+# 1: kind_data
+# 2: ic
+# 3: simulator
 define result_template =
+
 # The reference file for error calculation. Ignored during time calculations
 REFFLAG=--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz
-# The solution files that this result file depends upon
-# All the solution files, basically
 
+# The solution files that this result file depends upon are also generated with loops
 $(1)/results/$(2)/$(3).npz: $(foreach size, $(sizes), $(1)/$(2)/$(3)_$(size)_$(size).npz)
 	python calculator_simulator.py $(subst _data,,$(1)) $(2) $(3) \
 		--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz \
 		--sizes $(filter-out $(REFNX)_$(REFNY), $(sizes_sizes))
 
 endef
+# EMPTY LINE IS NECESSARY BEFORE `endef`, because `eval` needs that to work properly
 
+# Now call that template again for every calculation target
+# and run the result of the template through eval
 $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulators), $(eval $(call result_template,$(kd),$(ic),$(simulator))))))
 
+# Don't run `simulate.py` in parallel, because we are benchmarking performance
 .NOTPARALLEL: $(simulation_targets)
