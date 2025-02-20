@@ -141,3 +141,8 @@ class KP07_dimsplit(Simulator.BaseSimulator):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
         # This half stays, because the PP requires it
         return max_dt*0.5
+    
+    # Override default label to make it shorter
+    @classmethod
+    def label(cls):
+        return "KP07Ḏ"

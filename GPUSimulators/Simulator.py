@@ -170,10 +170,15 @@ class BaseSimulator(object):
         #Keep track of simulation time and number of timesteps
         self.t = 0.0
         self.nt = 0
-        
 
+        
     def __str__(self):
         return "{:s} [{:d}x{:d}]".format(self.__class__.__name__, self.nx, self.ny)
+
+    # Label name for plots
+    @classmethod
+    def label(cls):    
+        return cls.__name__
 
 
     def simulate(self, t, nt = np.inf, dt=None):
