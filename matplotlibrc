@@ -1,0 +1,8 @@
+
+text.usetex = False
+mathtext.fontset: cm
+font.size: 15
+# font.serif: Computer Modern Roman
+# font.sans-serif: DejaVu Sans
+
+figure.figsize: 3.2, 2.4
