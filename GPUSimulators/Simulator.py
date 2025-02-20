@@ -282,8 +282,7 @@ class BaseSimulator(object):
         raise(NotImplementedError("Needs to be implemented in subclass"))
 
     def check(self):
-        self.logger.warning("check() is not implemented - please implement")
-        #raise(NotImplementedError("Needs to be implemented in subclass"))
+        raise(NotImplementedError("Needs to be implemented in subclass"))
         
     def computeDt(self):
         raise(NotImplementedError("Needs to be implemented in subclass"))
