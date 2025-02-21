@@ -32,15 +32,16 @@ result_targets = $(foreach kd, $(kind_data), \
 
 # Phony targets are those that do not refer to actual files, only other actions.
 # This way make runs the recipe for clean even if there happens to be a file called clean
-.PHONY: clean plots help all
+.PHONY: clean plots help all ref
 
 # First target is the default target
+# plots: $(foreach ic,$(ics), plots_$(ic).ipynb)
 plots: plots_bump.ipynb plots_dambreak.ipynb
 all: plots
 
 help:
 	@echo "	Usage:"
-	@echo "		make [plots | all | FILENAME] [ics=ICS] [simulators=SIMULATORS] [sizes=SIZES] [kind_data=KIND_DATA] [REFNX=REFNX] [REFNY=REFNY]"
+	@echo "		make [plots | all | FILENAME(S) | ref] [ics=ICS] [simulators=SIMULATORS] [sizes=SIZES] [kind_data=KIND_DATA] [REFNX=REFNX] [REFNY=REFNY]"
 	@echo
 	@echo "To run only 1 simulation and update the data, run the following:"
 	@echo "		make ic=constant simulator=WAF sizes=1024 kind_data=time_data"
@@ -55,7 +56,7 @@ plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: plotter_simulator.ipynb $
 clean:
 	@echo "Delete simulation files manually. Only removing plots and calculations."
 	-rm plots_bump.ipynb plots_dambreak.ipynb
-	-rm space_data/results/* time_data/results/*
+	-rm -r space_data/results/* time_data/results/*
 
 # Declares a common dependency here. Individual rules below
 $(simulation_targets): simulate.py
@@ -89,9 +90,10 @@ else ifeq ($(1),time_data)
 ENDFLAG=--nt 1000
 endif
 
-ifeq ($(3),LxF)
-# 	ENDFLAG+=--cfl 0.6
-endif
+ ifeq ($(3),LxF)
+ 	ENDFLAG+=--cfl 0.5
+ endif
+
 )
 
 $(1)/$(2)/$(3)_$(4)_$(4).npz:
@@ -138,4 +140,22 @@ $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulat
 
 # Don't run `simulate.py` in parallel, because we are benchmarking performance
 # But it affects all the prerequisites as well
-# .NOTPARALLEL: $(simulation_targets)
+
+##################### CLAWPACK RECIPE ####################
+# Syntax reference:
+#	python shallow2d_bump_clawpack.py
+# Runs the clawpack script to generate the reference solution for bump case
+# then moves and compresses it.
+
+# variable to hide the equals
+EQUALS= =
+ref: reference/clawpack_nx$(EQUALS)1024.csv.gz
+reference/clawpack_nx$(EQUALS)1024.csv.gz: %.gz : %
+	gzip $^
+reference/clawpack_nx$(EQUALS)1024.csv: reference/shallow2d_bump_clawpack.py
+	python reference/shallow2d_bump_clawpack.py && mv _output/fort.q0002 reference/clawpack_nx=1024.csv
+	conda deactivate
+reference/swashes_*:
+	@echo "Generating swashes solutions not implemented."
+
+ .NOTPARALLEL: $(simulation_targets)
