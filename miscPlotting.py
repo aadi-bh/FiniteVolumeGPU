@@ -8,6 +8,7 @@ import seaborn as sns
 import subprocess
 from operator import itemgetter
 import gc
+import gzip
 
 #Set large figure sizes
 plt.rcParams['figure.figsize'] = [12, 8]
@@ -116,9 +117,13 @@ def gen_reference(nx, ic='dambreak'):
         hv = reference[..., 2]
         
         data = dict()
-        with open(csv_filename, 'r') as f:
+        if csv_file.endswith('.gz'):
+            open_function = gzip.open
+        else:
+            open_function = open
+        with open_function(csv_filename, 'r') as f:
             for i in range(8):
-                l = f.readline()
+                l = f.readline().decode('utf-8')
                 s = l.split()
                 data[s[1]] = s[0]
         dx = float(data['dx'])
@@ -127,7 +132,7 @@ def gen_reference(nx, ic='dambreak'):
         ylow = float(data['ylow'])
         assert nx == int(data['mx'])
         assert ny == int(data['my'])
-        x = np.linspace(xlow + dx / 2, xlow + nx * dx - dx/2, nx)
+        x = xlow + dx * np.linspace(0.5, nx - 0.5, nx)
         y = np.linspace(ylow + dy / 2, ylow + ny * dy - dy/2, ny)
         xx, yy = np.meshgrid(x,y)
         return xx, yy, h, hu, hv
