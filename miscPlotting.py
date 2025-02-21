@@ -101,7 +101,7 @@ def gen_reference(nx, ic='dambreak'):
         return x, h, h*u
     elif ic == 'bump':
         ny = nx
-        csv_filename = os.path.abspath(os.path.join("reference", "clawpack_nx=" + str(nx) + ".csv"))
+        csv_filename = os.path.abspath(os.path.join("reference", "clawpack_nx=" + str(nx) + ".csv.gz"))
 
         if (not os.path.isfile(csv_filename)):
             print("Reference file does not exist: ", csv_filename)
