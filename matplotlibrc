@@ -1,5 +1,5 @@
 
-text.usetex = False
+text.usetex : False
 mathtext.fontset: cm
 font.size: 15
 # font.serif: Computer Modern Roman

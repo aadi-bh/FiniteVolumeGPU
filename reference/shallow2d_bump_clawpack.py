@@ -83,6 +83,7 @@ def qinit(state,nx=128, ny=128, width=10.0, height=10.0,
     state.q[x_momentum,:,:] = hu
     state.q[y_momentum,:,:] = hv
 
+
     
 def setup(kernel_language='Fortran', use_petsc=False, outdir='./_output',
           solver_type='sharpclaw', riemann_solver='roe',disable_output=False):
@@ -157,8 +158,8 @@ def setplot(plotdata):
 
     # Set up for axes in this figure:
     plotaxes = plotfigure.new_plotaxes()
-    plotaxes.xlimits = [0.0, 10.0]
-    plotaxes.ylimits = [0.0, 10.0]
+    plotaxes.xlimits = [0.0, 100]
+    plotaxes.ylimits = [0.0, 100]
     plotaxes.title = 'Water height'
     plotaxes.scaled = True
 
@@ -175,8 +176,8 @@ def setplot(plotdata):
 
     # Set up for axes in this figure:
     plotaxes = plotfigure.new_plotaxes()
-    plotaxes.xlimits = [0., 10.0]
-    plotaxes.ylimits = [0., 10.0]
+    plotaxes.xlimits = [0., 100]
+    plotaxes.ylimits = [0., 100]
     plotaxes.title = 'Scatter plot of h'
 
     # Set up for item on these axes:
@@ -234,5 +235,5 @@ def setplot(plotdata):
 if __name__=="__main__":
     from clawpack.pyclaw.util import run_app_from_main
     output = run_app_from_main(setup,setplot)
-    from clawpack.pyclaw import plot
-    plot.html_plot()
+#    from clawpack.pyclaw import plot
+#    plot.html_plot()
