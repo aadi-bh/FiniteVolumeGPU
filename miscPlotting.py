@@ -117,7 +117,7 @@ def gen_reference(nx, ic='dambreak'):
         hv = reference[..., 2]
         
         data = dict()
-        if csv_file.endswith('.gz'):
+        if csv_filename.endswith('.gz'):
             open_function = gzip.open
         else:
             open_function = open
