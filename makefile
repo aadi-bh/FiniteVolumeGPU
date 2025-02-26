@@ -87,12 +87,8 @@ ENDFLAG=--tf 1.0
 else ifeq ($(1).$(2),space_data.constant)
 ENDFLAG=--tf 1.0
 else ifeq ($(1),time_data)
-ENDFLAG=--nt 1000
+ENDFLAG=--nt 10000
 endif
-
- ifeq ($(3),LxF)
- 	ENDFLAG+=--cfl 0.5
- endif
 
 )
 

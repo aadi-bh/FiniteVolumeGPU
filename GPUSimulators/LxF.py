@@ -124,4 +124,6 @@ class LxF (Simulator.BaseSimulator):
         
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
-        return max_dt
+        # Fully 2D LxF has a more restrictive stability condition which is satisfied by this
+        # This can be optimised
+        return 0.5 * max_dt
