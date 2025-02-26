@@ -222,8 +222,8 @@ class BaseSimulator(object):
 
             # Stop if end reached (should not happen)
             if (current_dt <= 0.0):
-                self.logger.warning("Timestep size {:d} is less than or equal to zero!".format(self.simSteps()))
-                break
+                self.logger.warning("Timestep {} size {} is less than or equal to zero!".format(self.simSteps(), current_dt))
+                raise ValueError
         
             # Step forward in time
             self.step(current_dt)
