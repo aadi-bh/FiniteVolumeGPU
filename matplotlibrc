@@ -1,8 +1,17 @@
 
 text.usetex : False
+# text.latex.preamble: \usepackage{amsmath}\usepackage{amssymb}
+# font.family: serif
+font.serif: Computer Modern
 mathtext.fontset: cm
-font.size: 15
+font.size: 6
 # font.serif: Computer Modern Roman
 # font.sans-serif: DejaVu Sans
 
-figure.figsize: 3.2, 2.4
+
+# lines.linewidth: 4
+axes.xmargin: 0.01
+
+savefig.bbox: tight
+savefig.format: pdf
+savefig.dpi: 300
