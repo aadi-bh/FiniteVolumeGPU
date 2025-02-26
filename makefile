@@ -48,7 +48,7 @@ help:
 
 # To use the matched pattern (% or $*) in the prerequisites we need to use second expansion, so double dollar signs
 .SECONDEXPANSION:
-plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: plotter_simulator.ipynb $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
+plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: plotter_simulator.ipynb miscPlotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
 	papermill plotter_simulator.ipynb $@ -p ic $* 
 
 # Shouldn't make it too easy to delete hours of work
