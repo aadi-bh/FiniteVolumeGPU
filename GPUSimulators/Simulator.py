@@ -198,6 +198,7 @@ class BaseSimulator(object):
         start_event = pycuda.driver.Event()
         end_event = pycuda.driver.Event()
         start_event.record()
+        start_event.synchronize()
 
         t_start = self.simTime()
         t_end = t_start + t
