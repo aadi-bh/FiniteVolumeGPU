@@ -128,10 +128,11 @@ def gen_time_results(filenames):
     megacells = ds_x * ds_y * 10**-6
     megacells_per_sec = megacells * max_nt / longsim_elapsed_time
     # Peak megacells will use the last two/three values
-    x = megacells[-PEAK_PERFORMANCE_FROM_LAST: ]
+    # x = megacells[-PEAK_PERFORMANCE_FROM_LAST: ]
     y = megacells_per_sec[-PEAK_PERFORMANCE_FROM_LAST: ]
-    res = scipy.stats.linregress(x, y)
-    peak_megacells_per_sec = np.mean(x) * res.slope + res.intercept
+    # res = scipy.stats.linregress(x, y)
+    # peak_megacells_per_sec = scipy.stats.gmean(x) * res.slope + res.intercept
+    peak_megacells_per_sec = np.mean(y)
     
     save_results(ds_x = ds_x,
                  ds_y = ds_y,
