@@ -54,6 +54,7 @@ def save_figure(fig, stem, ic):
         fig.savefig(fig_filename, dpi=300,format='pdf',
                 transparent=True, pad_inches=0.0, facecolor=None, 
                 metadata=metadata, bbox_inches='tight')
+    fig.savefig(fig_filename.replace('.pdf','.svg'), dpi=300, format='svg', transparent=True, bbox_inches='tight')
 
 def plot_solution(simulator, nx, label, ic="smooth1d", **kwargs):
     datafilename = gen_filename(simulator, nx, ic)
