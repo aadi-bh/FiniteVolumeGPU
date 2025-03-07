@@ -7,38 +7,6 @@ import scipy.integrate
 from common_simulator import *
 import scipy
 
-logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-ch.setLevel(10)
-logger.addHandler(ch)
-
-parser = argparse.ArgumentParser("Calculates benchmarking results given benchmarking data")
-parser.add_argument('directory', choices=['space', 'time', 'both'], default=None)
-parser.add_argument('ic', choices=GetInitialCondition.ics.keys(), action=GetInitialCondition)
-parser.add_argument('simulator', choices=GetSimulator.simulators.keys(), action=GetSimulator)
-parser.add_argument('--ref', type=str, help="Reference solution for erorr calculation")
-parser.add_argument('--sizes', nargs='+', help="List of nx_ny")
-PEAK_PERFORMANCE_FROM_LAST = 3
-args = parser.parse_args()
-
-# Generate filenames
-if args.sizes == None or len(args.sizes) == 0:
-    directory = os.path.dirname(gen_filename(args, 0, 0, prefix=args.directory))
-    unchecked_filenames = glob.glob(os.path.join(directory, args.simulator.__name__ + "_[0-9]*_[0-9]*.npz"))
-    assert len(unchecked_filenames) > 0
-    print(f"Found {len(unchecked_filenames)} files")
-else:
-    unchecked_filenames = [gen_filename(args, size_str.split('_')[0], size_str.split('_')[1], prefix = args.directory) for size_str in args.sizes]
-
-# Check existence
-filenames = []
-for filename in unchecked_filenames:
-    if os.path.isfile(filename):
-        filenames.append(filename)
-    else:
-        logger.info(f"Skipping not-a-file: {filename}.")
-if len(filenames) < len(unchecked_filenames):
-    logger.info(f"Specified {len(unchecked_filenames)} files but found only {len(filenames)}")
 
 def save_results(**kwargs):
     results_filename = gen_results_filename(kind = args.directory, simulator=args.simulator.__name__, ic = args.ic.__name__)
@@ -144,12 +112,46 @@ def gen_time_results(filenames):
 
 # ============================================================
 
-ds_x = np.zeros(len(filenames))
-ds_y = np.zeros_like(ds_x)
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    ch = logging.StreamHandler()
+    ch.setLevel(10)
+    logger.addHandler(ch)
 
-if args.directory == 'both':
-    raise NotImplementedError("Sorry, it's too much work to change this script now. Please run it twice.")
-if (args.directory == 'time' or args.directory == 'both'):
-    gen_time_results(filenames)
-elif (args.directory == 'space' or args.directory == 'both'):
-    gen_space_results(filenames, args.ref)
+    parser = argparse.ArgumentParser("Calculates benchmarking results given benchmarking data")
+    parser.add_argument('directory', choices=['space', 'time', 'both'], default=None)
+    parser.add_argument('ic', choices=GetInitialCondition.ics.keys(), action=GetInitialCondition)
+    parser.add_argument('simulator', choices=GetSimulator.simulators.keys(), action=GetSimulator)
+    parser.add_argument('--ref', type=str, help="Reference solution for erorr calculation")
+    parser.add_argument('--sizes', nargs='+', help="List of nx_ny")
+    PEAK_PERFORMANCE_FROM_LAST = 3
+    args = parser.parse_args()
+
+    # Generate filenames
+    if args.sizes == None or len(args.sizes) == 0:
+        directory = os.path.dirname(gen_filename(args, 0, 0, prefix=args.directory))
+        unchecked_filenames = glob.glob(os.path.join(directory, args.simulator.__name__ + "_[0-9]*_[0-9]*.npz"))
+        assert len(unchecked_filenames) > 0
+        print(f"Found {len(unchecked_filenames)} files")
+    else:
+        unchecked_filenames = [gen_filename(args, size_str.split('_')[0], size_str.split('_')[1], prefix = args.directory) for size_str in args.sizes]
+
+    # Check existence
+    filenames = []
+    for filename in unchecked_filenames:
+        if os.path.isfile(filename):
+            filenames.append(filename)
+        else:
+            logger.info(f"Skipping not-a-file: {filename}.")
+    if len(filenames) < len(unchecked_filenames):
+        logger.info(f"Specified {len(unchecked_filenames)} files but found only {len(filenames)}")
+
+    ds_x = np.zeros(len(filenames))
+    ds_y = np.zeros_like(ds_x)
+
+    if args.directory == 'both':
+        raise NotImplementedError("Sorry, it's too much work to change this script now. Please run it twice.")
+    if (args.directory == 'time' or args.directory == 'both'):
+        gen_time_results(filenames)
+    elif (args.directory == 'space' or args.directory == 'both'):
+        gen_space_results(filenames, args.ref)
