@@ -1,3 +1,10 @@
+"""
+Miscellaneous functions needed by multiple scripts and notebooks
+
+Name:  common_simulator.py
+By:    Aadi B.
+Usage: Only through `import`
+"""
 import argparse
 import logging
 import sys
@@ -12,6 +19,12 @@ from GPUSimulators.helpers import InitialConditions
 
 
 def gen_filename(args, nx, ny, ic:str=None, simulator=None, prefix=None):
+    """Return the file path for this combination.
+    
+    Keyword arguments:
+    args -- argparse object whose `nt`, `tf` are used to infer space or time results 
+    when prefix is not provide. 
+    Similarly args.ic and args.simlator are used if not provided explicitly."""
     if prefix == None:
         if args.nt == np.inf and args.tf < np.inf:
             prefix = 'space'
@@ -29,6 +42,7 @@ def gen_filename(args, nx, ny, ic:str=None, simulator=None, prefix=None):
     return os.path.abspath(os.path.join(directory, ic, simulator + "_" + str(nx) + "_" + str(ny) + ".npz"))
 
 def gen_results_filename(kind:str, simulator:str, ic:str):
+    """Returns the path of the file where results should be/are stored."""
     return os.path.join(kind + '_data', 'results', ic, simulator + '.npz')
 
 def init_logger(name, outfile, print_level=20, file_level=10):
@@ -71,6 +85,7 @@ def create_cuda_context(name, blocking=False, no_cache=False, use_autotuning=Tru
     return context
     
 class GetSimulator(argparse.Action):
+    """Returns a simulator class based on the provided command line argument."""
     simulators = {'LxF': LxF.LxF,
                   'FORCE': FORCE.FORCE,
                   'HLL': HLL.HLL,
@@ -90,6 +105,7 @@ class GetSimulator(argparse.Action):
                        'WAF': 2}
 
 class GetInitialCondition(argparse.Action):
+    """Returns a dictionaly with the initial conditions arguments based on the provided command line argument."""
     ics = {'bump': {'fn': InitialConditions.bump,
 #                    'tf': 1.0,
 #                    'max_nt': 100, # for now
