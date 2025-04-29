@@ -139,3 +139,8 @@ class KP07 (Simulator.BaseSimulator):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
         # For two-dimensional scheme, the CFL is actually a 1/4. So what to do?
         return max_dt*0.5**(self.order-1)
+    
+    # Override default label to make it shorter
+    @classmethod
+    def label(cls):
+        return "KP2D"

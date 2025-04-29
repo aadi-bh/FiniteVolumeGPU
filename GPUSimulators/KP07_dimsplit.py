@@ -139,10 +139,10 @@ class KP07_dimsplit(Simulator.BaseSimulator):
 
     def computeDt(self):
         max_dt = gpuarray.min(self.cfl_data, stream=self.stream).get();
-        # This half stays, because the PP requires it
+        # This half stays, because the positivity preservation requires it in the 1D scheme
         return max_dt*0.5
     
     # Override default label to make it shorter
     @classmethod
     def label(cls):
-        return "KP07Ḏ"
+        return "KPSS"
