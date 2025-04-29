@@ -121,7 +121,8 @@ __device__ __inline__ float computeHStar(float h_l, float h_r, float u_l, float 
 }
 
 /**
-  * Weighted average flux (Toro 2001, p 200) for interface {i+1/2}
+  * Weighted average flux (Toro 2001, p 200) for interface {i+1/2}, 
+  * translated from original Fortran from personal correspondence with E. Toro.
   * @param r_ The flux limiter parameter (see Toro 2001, p. 203)
   * @param Q_l2 Q_{i-1}
   * @param Q_l1 Q_{i}
