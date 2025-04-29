@@ -12,3 +12,4 @@ figures/**
 .vscode/
 *.workspace
 .gitattributes
+*.code-workspace
