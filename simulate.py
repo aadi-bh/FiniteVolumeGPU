@@ -1,7 +1,10 @@
-# Simulation calling script
+"""
+Script for benchmarking a single simulation, meant to be called by other scripts.
 
-# imports
-#Import packages we need
+Name: simulate.py
+By:   Aadi B.
+Usage: Run without arguments for the full list of options.
+"""
 import numpy as np
 import sys
 import os
@@ -27,7 +30,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                   dt=None, tf=1.0, max_nt=np.inf, force_rerun=False, transpose=False):
     if (datafilename and os.path.isfile(datafilename) and force_rerun == False):
         print(f"WARNING: Previous simulation found, skipping simulation run for {simulator.__name__} on {nx} cells")
-        logger.info("Skipping  simulation because previous simulation found for #TODO.")
+        logger.info(f"Skipping simulation because previous simulation found for {simulator.__name__}, {nx, ny} cells.")
         return [0, 0, 0]
     else:
         test_data_args = {
@@ -61,6 +64,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
             t,  nt, elapsed_time = sim.simulate(tf, max_nt, dt=None)
             sim.check()
 
+            # Extract data from the Simulator class
             nt = sim.simSteps()
             t = sim.simTime()
             dt = sim.simTime() / nt
@@ -70,6 +74,7 @@ def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx,
                 h = np.ascontiguousarray(np.transpose(h))
                 hu, hv = np.ascontiguousarray(np.transpose(hv)), np.ascontiguousarray(np.transpose(hu))
 
+            # Save to file
             if (datafilename):
                 dirname = os.path.dirname(datafilename)
                 if (dirname and not os.path.isdir(dirname)):
@@ -120,6 +125,7 @@ if __name__ == "__main__":
     }
     
     # warmup!
+    # Calls the kernel on a to perform one timestep on a small domain
     _, _, secs = run_benchmark(datafilename = None,
                                **benchmark_args,
                                nx=min(16, args.nx), reference_nx=min(16, args.ref_nx),
@@ -127,7 +133,7 @@ if __name__ == "__main__":
                                max_nt = 1, tf=np.inf)
     logger.info(f"{args.simulator.__name__} completed warmup simulation in {secs}s.")
 
-        # Run on all the sizes
+    # Run on all the sizes
     datafilename = gen_filename(args, args.nx, args.ny)
     t, nt, secs = run_benchmark(datafilename = datafilename, 
                           **benchmark_args,
@@ -135,5 +141,6 @@ if __name__ == "__main__":
                           ny = args.ny, reference_ny = args.ref_ny,
                           tf = args.tf, max_nt = args.nt)
     logger.info(f"[{args.simulator.__name__} {args.nx}x{args.ny}] done in {secs}s ({nt} steps, tf={t}).")
-    gc.collect()
+    # gc.collect()
+    # return 0 to the calling script
     sys.exit(0)
