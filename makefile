@@ -23,6 +23,8 @@ simulation_targets = $(foreach kd, $(kind_data), \
 							$(foreach size, $(sizes), \
 								$(kd)/$(ic)/$(simulator)_$(size)_$(size).npz))))
 
+# Simulator .py files
+simulator_classes = $(foreach simulator, $(simulators), GPUSimulators/$(simulator).py)
 # Another product of sets to generate the calculation files
 # calculated values are in kind_data/results/ics/simulators.npz
 result_targets = $(foreach kd, $(kind_data), \
@@ -50,6 +52,8 @@ help:
 .SECONDEXPANSION:
 plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: plotter_simulator.ipynb miscPlotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
 	papermill plotter_simulator.ipynb $@ -p ic $* 
+
+$(simulator_classes): GPUSimulators/%.py: GPUSimulators/cuda/SWE2D_%.cu
 
 # Shouldn't make it too easy to delete hours of work
 # Prepending with a minus tells make to ignore errors
@@ -154,4 +158,4 @@ reference/clawpack_nx$(EQUALS)1024.csv: reference/shallow2d_bump_clawpack.py
 reference/swashes_*:
 	@echo "Generating swashes solutions not implemented."
 
- .NOTPARALLEL: $(simulation_targets)
+.NOTPARALLEL: $(simulation_targets)
