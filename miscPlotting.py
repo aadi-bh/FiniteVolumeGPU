@@ -1,4 +1,10 @@
-#Misc plotting setup
+"""
+Functions needed for plots, but do not belong in a notebook.
+
+Name:  miscPlotting.py
+By:    Aadi B.
+Usage: Only through import
+"""
 import matplotlib.pyplot as plt
 import os
 import datetime
@@ -21,9 +27,11 @@ plt.rcParams['lines.markeredgewidth'] = 1.5
 
 
 def gen_filename(simulator, nx, ic="smooth1d"):
+    """DEPRECATED: Returns path of data file corresponding to arguments."""
     return os.path.abspath(os.path.join("data", ic, str(simulator.__name__) + "_" + str(nx) + ".npz"))
 
 def setBwStyles(ax):
+    """Set colours and marker cyclers for a given axis."""
     from cycler import cycler
     ax.set_prop_cycle( cycler('marker', ['.', 'x', 4, '+', '*', '1', 5])
                        + cycler('linestyle', ['-.', '--', ':', '-.', '--', ':', '-.'])
@@ -34,6 +42,7 @@ def setBwStyles(ax):
                        )    
 
 def save_figure(fig, stem, ic):
+    """Set metadata and save figure as PDF, with stem inserted into the path before the extension."""
     if (not os.path.isdir("figures")):
         os.mkdir("figures")
     
@@ -57,6 +66,8 @@ def save_figure(fig, stem, ic):
     fig.savefig(fig_filename.replace('.pdf','.svg'), dpi=300, format='svg', transparent=True, bbox_inches='tight')
 
 def plot_solution(simulator, nx, label, ic="smooth1d", **kwargs):
+    """DEPRECATED: Finds and plots the given solution.
+    This function needs to be tweaked so much that it is moved to the notebook."""
     datafilename = gen_filename(simulator, nx, ic)
     
     #Read the solution
@@ -73,12 +84,16 @@ def plot_solution(simulator, nx, label, ic="smooth1d", **kwargs):
     gc.collect() # Force run garbage collection to free up memory
     
 def plot_comparison(nx, **kwargs):
+    """DEPRECATED: Plots solutions on top of each other.
+    
+    This function needs to be tweaked so much it is moved to the notebook."""
     plot_solution(HLL2.HLL2, reference_nx, 'Reference', marker=' ', linestyle='-')
 
     for i, simulator in enumerate(simulators):
         plot_solution(simulator, nx, simulator.__name__, **kwargs)
 
 def gen_reference(nx, ic='dambreak'):
+    """Returns the (x, h, hu) for the reference solutions for the IC."""
     if ic == 'dambreak':
         csv_filename = os.path.abspath(os.path.join("reference", "swashes_1_nx=" + str(nx) + ".csv"))
 
@@ -137,7 +152,3 @@ def gen_reference(nx, ic='dambreak'):
         y = np.linspace(ylow + dy / 2, ylow + ny * dy - dy/2, ny)
         xx, yy = np.meshgrid(x,y)
         return xx, yy, h, hu, hv
-
-
-
-
