@@ -9,3 +9,6 @@ data/**
 **/.ipynb_checkpoints/**
 figures/**
 **/cuda_cache/**
+.vscode/
+*.workspace
+.gitattributes
