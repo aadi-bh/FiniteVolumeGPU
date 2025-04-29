@@ -1,5 +1,7 @@
 # 
-# Makefile for running simulations, calculations, and generating plots
+# Makefile for running simulations, calculations, and generating plots.
+# Complicated because it generate rules dynamically for each single solution, result, and plots file.
+# Run `make help` to get usage.
 # Created 13th Feb 2025
 
 # ?= only sets if empty, so can be overriden command line to override
