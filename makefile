@@ -40,7 +40,7 @@ result_targets = $(foreach kd, $(kind_data), \
 
 # First target is the default target
 # plots: $(foreach ic,$(ics), plots_$(ic).ipynb)
-plots: plots_bump.ipynb plots_dambreak.ipynb
+plots: benchmark_plots_bump.ipynb benchmark_plots_dambreak.ipynb
 all: plots
 
 help:
@@ -52,7 +52,7 @@ help:
 
 # To use the matched pattern (% or $*) in the prerequisites we need to use second expansion, so double dollar signs
 .SECONDEXPANSION:
-plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: benchmark_plotter.ipynb misc_plotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
+benchmark_plots_bump.ipynb benchmark_plots_dambreak.ipynb : plots_%.ipynb: benchmark_plotter.ipynb misc_plotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
 	papermill benchmark_plotter.ipynb $@ -p ic $* 
 
 $(simulator_classes): GPUSimulators/%.py: GPUSimulators/cuda/SWE2D_%.cu
@@ -61,7 +61,7 @@ $(simulator_classes): GPUSimulators/%.py: GPUSimulators/cuda/SWE2D_%.cu
 # Prepending with a minus tells make to ignore errors
 clean:
 	@echo "Delete simulation files manually. Only removing plots and calculations."
-	-rm plots_bump.ipynb plots_dambreak.ipynb
+	-rm benchmark_plots_bump.ipynb benchmark_plots_dambreak.ipynb
 	-rm -r space_data/results/* time_data/results/*
 
 # Declares a common dependency here. Individual rules below
