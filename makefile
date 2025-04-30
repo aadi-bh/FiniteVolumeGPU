@@ -65,12 +65,12 @@ clean:
 	-rm -r space_data/results/* time_data/results/*
 
 # Declares a common dependency here. Individual rules below
-$(simulation_targets): simulate.py
+$(simulation_targets): benchmark_simulate.py
 $(result_targets): benchmark_postprocess.py
 
 #################### SIMULATION RECIPES ####################
 # Syntax reference:
-# > python simulate.py space dambreak --nx 8 --ny 8
+# > python benchmark_simulate.py space dambreak --nx 8 --ny 8
 # 	--ref-nx 16384 --ref-ny 16384 --tf 6.0
 # USING --force-rerun because make's logic is better than the script's
 #
@@ -99,7 +99,7 @@ endif
 )
 
 $(1)/$(2)/$(3)_$(4)_$(4).npz:
-	python simulate.py $(2) $(3) --nx $(4) --ny $(4) \
+	python benchmark_simulate.py $(2) $(3) --nx $(4) --ny $(4) \
 --ref-nx $(REFNX) --ref-ny $(REFNY) \
 $(ENDFLAG) --force-rerun
 
@@ -140,7 +140,7 @@ endef
 # and run the result of the template through eval
 $(foreach kd, $(kind_data), $(foreach ic, $(ics), $(foreach simulator, $(simulators), $(eval $(call result_template,$(kd),$(ic),$(simulator))))))
 
-# Don't run `simulate.py` in parallel, because we are benchmarking performance
+# Don't run `benchmark_simulate.py` in parallel, because we are benchmarking performance
 # But it affects all the prerequisites as well
 
 ##################### CLAWPACK RECIPE ####################

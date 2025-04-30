@@ -1,8 +1,8 @@
 """
 Script for benchmarking a single simulation, meant to be called by other scripts.
 
-Name: simulate.py
-By:   Aadi B.
+Name:  benchmark_simulate.py
+By:    Aadi B.
 Usage: Run without arguments for the full list of options.
 """
 import numpy as np
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     logger = init_logger(__name__, 'gpusimulator.log')
     logger = logging.getLogger(__name__)
 
-    logger.info("Arguments to simulate.py: " + str(args))
+    logger.info("Arguments to benchmark_simulate.py: " + str(args))
 
     ctx = create_cuda_context('benchmark_context')
     sim_args = {
