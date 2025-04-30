@@ -1,8 +1,8 @@
 """
 Script to calculate error and other metrics from results
 
-Name: calculator_simulator.py
-By:   Aadi B.
+Name:  benchmark_postprocess.py
+By:    Aadi B.
 Usage: Run without arguments for full list of options.
 """
 

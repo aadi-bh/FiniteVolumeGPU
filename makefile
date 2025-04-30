@@ -66,7 +66,7 @@ clean:
 
 # Declares a common dependency here. Individual rules below
 $(simulation_targets): simulate.py
-$(result_targets): calculator_simulator.py
+$(result_targets): benchmark_postprocess.py
 
 #################### SIMULATION RECIPES ####################
 # Syntax reference:
@@ -112,7 +112,7 @@ $(foreach kd,$(kind_data),$(foreach ic,$(ics),$(foreach simulator,$(simulators),
 
 #################### CALCULATION RECIPES ####################
 # Syntax reference:
-#	python calculator_simulator.py space dambreak HLL \
+#	python benchmark_postprocess.py space dambreak HLL \
 #		--ref space_data/dambreak/HLL_16384_16384.npz \
 #		--sizes $(SIZES)
 #
@@ -129,7 +129,7 @@ REFFLAG=--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz
 
 # The solution files that this result file depends upon are also generated with loops
 $(1)/results/$(2)/$(3).npz: $(foreach size, $(sizes), $(1)/$(2)/$(3)_$(size)_$(size).npz)
-	python calculator_simulator.py $(subst _data,,$(1)) $(2) $(3) \
+	python benchmark_postprocess.py $(subst _data,,$(1)) $(2) $(3) \
 		--ref $(1)/$(2)/$(3)_$(REFNX)_$(REFNY).npz \
 		--sizes $(filter-out $(REFNX)_$(REFNY), $(sizes_sizes))
 
