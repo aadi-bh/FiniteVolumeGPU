@@ -24,7 +24,7 @@ from GPUSimulators import Common, LxF, FORCE, HLL, HLL2, KP07, KP07_dimsplit, WA
 from GPUSimulators import CudaContext
 from GPUSimulators.helpers import InitialConditions
 
-from common_simulator import *
+from benchmark_common import *
 
 def run_benchmark(datafilename, simulator, simulator_args, ic, nx, reference_nx, ny, reference_ny,
                   dt=None, tf=1.0, max_nt=np.inf, force_rerun=False, transpose=False):

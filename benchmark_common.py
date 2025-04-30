@@ -1,7 +1,7 @@
 """
 Miscellaneous functions needed by multiple scripts and notebooks
 
-Name:  common_simulator.py
+Name:  benchmark_common.py
 By:    Aadi B.
 Usage: Only through `import`
 """
