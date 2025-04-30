@@ -1,9 +1,10 @@
 """
 Functions needed for plots, but do not belong in a notebook.
+Adapted from `Convergence*.ipynb`.
 
 Name:  misc_plotting.py
 By:    Aadi B.
-Usage: Only through import. See docstrings
+Usage: See docstrings
 """
 import matplotlib.pyplot as plt
 import os
