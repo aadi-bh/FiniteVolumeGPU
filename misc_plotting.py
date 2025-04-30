@@ -1,9 +1,9 @@
 """
 Functions needed for plots, but do not belong in a notebook.
 
-Name:  miscPlotting.py
+Name:  misc_plotting.py
 By:    Aadi B.
-Usage: Only through import
+Usage: Only through import. See docstrings
 """
 import matplotlib.pyplot as plt
 import os

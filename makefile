@@ -52,7 +52,7 @@ help:
 
 # To use the matched pattern (% or $*) in the prerequisites we need to use second expansion, so double dollar signs
 .SECONDEXPANSION:
-plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: benchmark_plotter.ipynb miscPlotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
+plots_bump.ipynb plots_dambreak.ipynb : plots_%.ipynb: benchmark_plotter.ipynb misc_plotting.py $$(foreach kd,$$(kind_data),$$(foreach simulator, $$(simulators), $$(kd)/results/$$*/$$(simulator).npz))
 	papermill benchmark_plotter.ipynb $@ -p ic $* 
 
 $(simulator_classes): GPUSimulators/%.py: GPUSimulators/cuda/SWE2D_%.cu
