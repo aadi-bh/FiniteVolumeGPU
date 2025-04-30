@@ -11,7 +11,7 @@ import numpy as np
 import os
 import glob
 import scipy.integrate
-from common_simulator import *
+from benchmark_common import *
 import scipy
 
 def save_results(**kwargs):
