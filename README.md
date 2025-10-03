@@ -5,11 +5,11 @@ This Python software package implements several finite volume discretizations on
 ## Setup
 A good place to start exploring this codebase is the notebooks. Complete the following steps to run the notebooks:
 
-1. Install conda (see e.g. Miniconda or Anaconda)
+1. Install `conda` (e.g. [Miniforge][mf] or [Anaconda][ac])
 2. Change directory to the repository root and run the following commands
-3. conda env create -f conda_environment.yml
-4. conda activate ShallowWaterGPU
-5. jupyter notebook
+3. `conda env create -f conda_environment.yml`
+4. `conda activate ShallowWaterGPU`
+5. `jupyter notebook`
 
 Make sure you are running the correct kernel ("conda:ShallowWaterGPU"). If not, change kernel using the "Kernel"-menu in the notebook.
 
@@ -42,3 +42,6 @@ Finally, mention the simulator name in the `makefile`'s array `simulators` at th
 Implement it as a function in `GPUSimulators/helpers/InitialCondition.py`.
 Then add the corresponding dictionary entry to `GetInitialCondition.ics` dictionary in `benchmark_common.py`.
 Finallly, update the `all` target in the `makefile` with the desired notebook.
+
+[mf]:https://github.com/conda-forge/miniforge
+[ac]:https://www.anaconda.com/
