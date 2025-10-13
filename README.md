@@ -13,8 +13,6 @@ A good place to start exploring this codebase is the notebooks. Complete the fol
 
 Make sure you are running the correct kernel ("conda:ShallowWaterGPU"). If not, change kernel using the "Kernel"-menu in the notebook.
 
-If you do not need to run notebooks you may use the conda environment found in conda_environment_hpc.yml
-
 ## Troubleshooting
 Have a look at the conda documentation and https://towardsdatascience.com/how-to-set-up-anaconda-and-jupyter-notebook-the-right-way-de3b7623ea4a
 
@@ -26,11 +24,11 @@ Have a look at the conda documentation and https://towardsdatascience.com/how-to
     1. Run `papermill benchmark_plotter.ipynb` with each initial condition to generate figures in corresponding notebooks `benchmark_plots_*.ipynb` as well as PDFs in the `figures/` directory.
 
 ### Benchmarking files
-`benchmark_simulate.py`: Runs a single simulation and records the solution, time taken, and other data.
-`benchmark_postprocess.py`: Reads all the simulation files and calculates performance and accuracy.
-`benchmark_plotter.ipynb`: Jupyter notebook that creates and exports all plots. Called through `papermill` when `make plots` is run to generate `benchmark_plots_bump.ipynb` and `benchmark_plots_dambreak.ipynb`.
-`benchmark_common.py`: Some functions used in multiple files.
-`misc_plotting.py`: Some miscellaneous functions related to the plotting.
+- `benchmark_simulate.py`: Runs a single simulation and records the solution, time taken, and other data.
+- `benchmark_postprocess.py`: Reads all the simulation files and calculates performance and accuracy.
+- `benchmark_plotter.ipynb`: Jupyter notebook that creates and exports all plots. Called through `papermill` when `make plots` is run to generate `benchmark_plots_bump.ipynb` and `benchmark_plots_dambreak.ipynb`.
+- `benchmark_common.py`: Some functions used in multiple files.
+- `misc_plotting.py`: Some miscellaneous functions related to the plotting.
 
 ### To implement a new simulator
 `GPUSimulators/WAF.py` is derived from the base class in `GPUSimulators/Simulators.py`. It relies on a kernel in `GPUSimulators/cuda/SWE2D_WAF.cu`.
